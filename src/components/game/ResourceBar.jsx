@@ -1,4 +1,5 @@
 import { RESOURCES } from '../../data/art.js'
+import { PixelIcon } from '../PixelIcon.jsx'
 
 export function ResourceBar({ me, limit, timer, round, maxRounds }) {
   return (
@@ -7,7 +8,7 @@ export function ResourceBar({ me, limit, timer, round, maxRounds }) {
         <span className="opacity-60">
           Ronda {round}/{maxRounds}
         </span>
-        <span className="ml-auto text-aldea-accent">{me.points} pts</span>
+        <span className="text-aldea-accent ml-auto">{me.points} pts</span>
         {timer}
       </div>
       <div className="grid grid-cols-4 gap-1">
@@ -21,7 +22,7 @@ export function ResourceBar({ me, limit, timer, round, maxRounds }) {
               }`}
               title={`${r.label} — tope ${limit}`}
             >
-              <span>{r.icon}</span>
+              <PixelIcon name={r.icon} size={16} />
               <span>{v}</span>
             </div>
           )

@@ -13,6 +13,43 @@ Proyecto Supabase nuevo e independiente de VETA / La Torre del Dragón (ARCHITEC
 | `migrations/20260807120400_cron.sql` | `pg_cron` llamando a `tick_games()` cada 5 s |
 | `migrations/20260807120500_draw_time.sql` | Tiempo extra en la ronda 1 para el sorteo de personajes |
 | `migrations/20260807120600_realtime_broadcast.sql` | Realtime por Broadcast desde la base + RLS de topics |
+| `migrations/20260807120700_sabotages.sql` | Espionaje, Torre de Vigilancia y orden de defensas en la resolución |
+| `migrations/20260807120800_missions.sql` | Verificación de las 16 misiones al cierre de la partida |
+| `migrations/20260807120900_comeback.sql` | Ayuda al último lugar + preferencia de recurso |
+| `migrations/20260807121000_leaderboard.sql` | Vista `leaderboard` e historial personal |
+| `migrations/20260807121100_recent_games_grants.sql` | Revoca `my_recent_games` a `anon` |
+| `migrations/20260807121200_accounts.sql` | Códigos de invitación, nickname único y alta de cuenta |
+| `migrations/20260807121300_avatars.sql` | Avatar de perfil + `set_my_avatar()` con lista blanca |
+
+## Cuentas y código de invitación
+
+El registro pide **código de invitación + nombre + correo + contraseña**. El código
+se valida dos veces: `invite_code_valid()` antes de registrarse (para dar un error
+legible) y el trigger `handle_new_user`, que aborta el alta si no sirve. Sin la
+segunda, cualquiera se registraría llamando a la API de auth con la publishable key.
+
+`invite_codes` no tiene GRANT ni políticas: los códigos no se listan desde el
+cliente. `SOY-ALDEANO` viene cargado, sin límite de usos. Para agregar otro:
+
+```sql
+insert into invite_codes (code, max_uses, note) values ('AMIGOS-2026', 10, 'tanda 2');
+update invite_codes set active = false where code = 'SOY-ALDEANO';  -- desactivar
+```
+
+El nickname es único (sin distinguir mayúsculas) y se cambia por `set_my_nickname()`,
+no por UPDATE directo: el índice único devolvería un error crudo.
+
+El avatar (`profiles.avatar`, por defecto `aldeano`) se cambia por `set_my_avatar()`,
+que valida contra su propia lista blanca. Para agregar uno nuevo hay que tocar dos
+lugares: el sprite y la lista de `src/data/icons.js`, y la lista de la función.
+
+### Configuración necesaria en el dashboard
+
+- **Confirm email: apagado.** Con la opción encendida el registro falla con
+  `email rate limit exceeded`: el SMTP incorporado de Supabase permite ~2 correos
+  por hora. El código de invitación ya cumple de portero. Si se quiere volver a
+  activar, hace falta un SMTP propio en Project Settings → Auth → SMTP.
+- **Allow anonymous sign-ins: apagado.** Ya no se usa.
 
 ## Realtime: Broadcast, no Postgres Changes
 

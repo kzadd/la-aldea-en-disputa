@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { getMyMission } from '../lib/api.js'
-import { CHARACTER_ICON } from '../data/art.js'
+import { CHARACTER_SPRITE } from '../data/icons.js'
+import { PixelIcon } from '../components/PixelIcon.jsx'
 import { Button, Panel } from '../components/ui.jsx'
 
 const SPIN_MS = 2200
@@ -42,7 +43,7 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
         transition={{ duration: 0.5 }}
         className="bg-aldea-panel flex flex-col items-center gap-3 rounded p-6 text-center"
       >
-        <span className="text-5xl">{CHARACTER_ICON[shown] ?? '❓'}</span>
+        <PixelIcon name={CHARACTER_SPRITE[shown] ?? 'interrogante'} size={72} />
         <p className="text-aldea-accent">{char?.name}</p>
         {!spinning && (
           <>
@@ -54,7 +55,7 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
 
       {!spinning && (
         <>
-          <Panel title="🤫 Tu misión secreta">
+          <Panel title="Tu misión secreta" icon="secreto">
             {mission ? (
               <>
                 <p className="text-aldea-accent">{mission.name}</p>
@@ -70,7 +71,7 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
             <ul className="flex flex-col gap-2">
               {players.map((p) => (
                 <li key={p.user_id} className="bg-aldea-bg flex items-center gap-2 rounded p-2">
-                  <span>{CHARACTER_ICON[p.character_key] ?? '❓'}</span>
+                  <PixelIcon name={CHARACTER_SPRITE[p.character_key] ?? 'interrogante'} size={14} />
                   <span>{p.user_id === userId ? 'Tú' : p.profiles?.nickname}</span>
                   <span className="ml-auto opacity-60">{characters[p.character_key]?.name}</span>
                 </li>

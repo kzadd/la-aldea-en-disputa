@@ -1,4 +1,5 @@
 import { RESOURCES, TIER_STYLE } from '../../data/art.js'
+import { PixelIcon } from '../PixelIcon.jsx'
 
 // 6 cartas visibles para todos (GAME_DESIGN §4.1). El costo mostrado ya viene
 // con la pasiva del Herrero aplicada por el servidor vía `discount`.
@@ -28,13 +29,19 @@ export function Market({ market, buildings, me, selected, onSelect, disabled }) 
           >
             <span className="flex items-center justify-between gap-1">
               <span className="text-aldea-accent">{b.name}</span>
-              <span>{b.points}⭐</span>
+              <span className="flex items-center gap-1">
+                {b.points}
+                <PixelIcon name="trofeo" size={12} title="puntos" />
+              </span>
             </span>
-            <span className="flex flex-wrap gap-1">
+            <span className="flex flex-wrap gap-2">
               {RESOURCES.filter((r) => cost[r.key] > 0).map((r) => (
-                <span key={r.key} className={me[r.key] < cost[r.key] ? 'text-red-400' : ''}>
+                <span
+                  key={r.key}
+                  className={`flex items-center gap-1 ${me[r.key] < cost[r.key] ? 'text-red-400' : ''}`}
+                >
                   {cost[r.key]}
-                  {r.icon}
+                  <PixelIcon name={r.icon} size={12} title={r.label} />
                 </span>
               ))}
             </span>

@@ -9,7 +9,8 @@ import { SabotagePanel } from '../components/game/SabotagePanel.jsx'
 import { RevealOverlay } from '../components/game/RevealOverlay.jsx'
 import { SpyReport } from '../components/game/SpyReport.jsx'
 import { Button } from '../components/ui.jsx'
-import { RESOURCES, RES_ICON, SABOTAGES } from '../data/art.js'
+import { PixelIcon } from '../components/PixelIcon.jsx'
+import { RESOURCES, RES_ICON, RES_LABEL, SABOTAGES } from '../data/art.js'
 
 export default function Game({ gameId, userId, catalogs, onFinished }) {
   const { game, room, players, market, buildings, events, confirmed, cooldowns, me, loading } =
@@ -152,11 +153,21 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
 
       {myComeback && (
         <div className="bg-aldea-panel animate-pop flex items-center gap-2 rounded p-2">
-          <span>🍃</span>
-          <span className="flex-1 leading-relaxed">
-            Viento a favor: +1 {RES_ICON[myComeback.payload.resource]} por ir último
+          <PixelIcon name="hoja" size={14} />
+          <span className="flex flex-1 items-center gap-1 leading-relaxed">
+            Viento a favor: +1
+            <PixelIcon
+              name={RES_ICON[myComeback.payload.resource]}
+              size={12}
+              title={RES_LABEL[myComeback.payload.resource]}
+            />
+            por ir último
           </span>
-          <button onClick={() => setShowPref((v) => !v)} className="bg-aldea-bg rounded px-2 py-1">
+          <button
+            type="button"
+            onClick={() => setShowPref((v) => !v)}
+            className="bg-aldea-bg rounded px-2 py-1"
+          >
             {showPref ? '▲' : 'elegir'}
           </button>
         </div>
@@ -169,15 +180,18 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
             {RESOURCES.map((r) => (
               <button
                 key={r.key}
+                type="button"
+                title={r.label}
                 onClick={() => savePref(r.key)}
-                className={`rounded py-2 ${
+                className={`flex items-center justify-center rounded py-2 ${
                   me.comeback_preference === r.key ? 'bg-aldea-accent text-aldea-bg' : 'bg-aldea-bg'
                 }`}
               >
-                {r.icon}
+                <PixelIcon name={r.icon} size={14} />
               </button>
             ))}
             <button
+              type="button"
               onClick={() => savePref(null)}
               className={`rounded py-2 text-[8px] ${
                 me.comeback_preference ? 'bg-aldea-bg' : 'bg-aldea-accent text-aldea-bg'
@@ -195,7 +209,8 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
           onClick={() => setShowMission((v) => !v)}
           className="bg-aldea-panel rounded p-2 text-left leading-relaxed"
         >
-          🤫 {showMission ? mission.description : 'Tu misión secreta'}
+          <PixelIcon name="secreto" size={12} />{' '}
+          {showMission ? mission.description : 'Tu misión secreta'}
           <span className="opacity-40"> {showMission ? '▲' : '▼'}</span>
         </button>
       )}
@@ -203,12 +218,12 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
       <div className="flex-1 overflow-y-auto">
         {targeted && (
           <p className="mb-2 rounded bg-amber-900 p-2 text-center leading-relaxed">
-            🗼 Tu Torre detecta que alguien te está apuntando
+            <PixelIcon name="torre" size={12} /> Tu Torre detecta que alguien te está apuntando
           </p>
         )}
         {blocked && (
           <p className="mb-2 rounded bg-red-900 p-2 text-center">
-            ⛔ Bloqueado: esta ronda no puedes construir
+            <PixelIcon name="bloqueo" size={12} /> Bloqueado: esta ronda no puedes construir
           </p>
         )}
         <Market

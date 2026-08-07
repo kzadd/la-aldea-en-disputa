@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PixelIcon } from '../PixelIcon.jsx'
 
 // El countdown es decorativo: quien cierra la ronda es el servidor
 // (ARCHITECTURE §5). Si llega a 0 y el server aún no resolvió, solo se ve 0.
@@ -14,8 +15,13 @@ export function RoundTimer({ deadline }) {
   }, [deadline])
 
   return (
-    <span className={`rounded px-2 py-1 ${left <= 5 ? 'bg-red-900' : 'bg-aldea-bg'}`}>
-      ⏱ {left}s
+    <span
+      className={`flex items-center gap-1 rounded px-2 py-1 ${
+        left <= 5 ? 'bg-red-900' : 'bg-aldea-bg'
+      }`}
+    >
+      <PixelIcon name="reloj" size={10} />
+      {left}s
     </span>
   )
 }

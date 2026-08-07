@@ -1,28 +1,74 @@
 import { supabase } from './supabase.js'
 
-// Sesión anónima: el juego no pide registro, la sala es la identidad.
-export async function ensureSession() {
+export async function currentSession() {
   const { data } = await supabase.auth.getSession()
-  if (data.session) return data.session
-  const { data: signed, error } = await supabase.auth.signInAnonymously()
-  if (error) throw error
-  return signed.session
+  return data.session ?? null
 }
 
+export async function signIn(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.trim(),
+    password,
+  })
+  if (error) throw new Error(traducirAuth(error.message))
+  return data.session
+}
+
+// El código de invitación y el nickname se validan acá para poder mostrar un
+// error decente, pero quien manda es el trigger `handle_new_user`: si alguien
+// llama a la API de auth directamente, el alta se aborta igual.
+export async function signUp({ inviteCode, nickname, email, password }) {
+  const [{ data: codeOk }, { data: nickOk }] = await Promise.all([
+    supabase.rpc('invite_code_valid', { p_code: inviteCode }),
+    supabase.rpc('nickname_available', { p_nickname: nickname }),
+  ])
+  if (!codeOk) throw new Error('Código de invitación inválido')
+  if (!nickOk) throw new Error('Ese nombre ya está en uso o no es válido (2-16 caracteres)')
+
+  const { data, error } = await supabase.auth.signUp({
+    email: email.trim(),
+    password,
+    options: { data: { nickname: nickname.trim(), invite_code: inviteCode.trim().toUpperCase() } },
+  })
+  if (error) throw new Error(traducirAuth(error.message))
+
+  // Sin sesión = el proyecto exige confirmar el correo antes de entrar
+  return { session: data.session, needsConfirmation: !data.session }
+}
+
+export async function signOut() {
+  await supabase.auth.signOut()
+}
+
+const traducirAuth = (m) => {
+  const msg = String(m)
+  if (/Invalid login credentials/i.test(msg)) return 'Correo o contraseña incorrectos'
+  if (/Email not confirmed/i.test(msg)) return 'Todavía no confirmaste tu correo'
+  if (/User already registered/i.test(msg)) return 'Ese correo ya tiene una cuenta'
+  if (/Password should be at least (\d+)/i.test(msg))
+    return `La contraseña necesita al menos ${msg.match(/at least (\d+)/i)[1]} caracteres`
+  if (/valid email/i.test(msg)) return 'Ese correo no parece válido'
+  if (/Database error saving new user/i.test(msg))
+    return 'No se pudo crear la cuenta: revisá el código de invitación y el nombre'
+  if (/rate limit|too many/i.test(msg)) return 'Demasiados intentos, esperá un momento'
+  return msg
+}
+
+// Devuelve null si el perfil no existe. Pasa cuando el navegador conserva una
+// sesión cuyo usuario ya no está en la base: el JWT sigue siendo válido un rato
+// más, así que hay que detectarlo y cerrar sesión en vez de reventar.
 export async function getProfile(userId) {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, nickname')
+    .select('id, nickname, avatar')
     .eq('id', userId)
-    .single()
+    .maybeSingle()
   if (error) throw error
-  return data
+  return data ?? null
 }
 
-export async function setNickname(userId, nickname) {
-  const { error } = await supabase.from('profiles').update({ nickname }).eq('id', userId)
-  if (error) throw error
-}
+export const setNickname = (nickname) => rpc('set_my_nickname', { p_nickname: nickname })
+export const setAvatar = (avatar) => rpc('set_my_avatar', { p_avatar: avatar })
 
 // Todo el estado de juego vive en Supabase (ARCHITECTURE §9): al recargar,
 // la sala y la partida en curso se recuperan de la base, no de localStorage.

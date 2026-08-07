@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { RES_ICON } from '../../data/art.js'
+import { RES_ICON, RES_LABEL } from '../../data/art.js'
+import { PixelIcon } from '../PixelIcon.jsx'
 
 const DEFENSE = {
   guardiana: 'el escudo de La Guardiana',
@@ -15,7 +16,7 @@ const REASON = {
   empty: 'no había nada que robar',
 }
 
-const ICON = { build: '🏠', steal: '🫳', block: '⛔', damage: '💥' }
+const ICON = { build: 'casa', steal: 'robo', block: 'bloqueo', damage: 'danio' }
 
 // Reveal dramático (GAME_DESIGN §5.3): quién hizo qué a quién. Los eventos ya
 // vienen resueltos del servidor; acá solo se narran y se animan en secuencia.
@@ -42,10 +43,13 @@ export function RevealOverlay({ events, players, buildings, round, userId }) {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.5 }}
-            className="bg-aldea-panel rounded p-3 leading-relaxed"
+            className="bg-aldea-panel flex items-start gap-2 rounded p-3 leading-relaxed"
           >
-            {ICON[e.type]} <b>{who(e.actor_id, players, userId)}</b>{' '}
-            {narrate(e, players, buildings, userId)}
+            <PixelIcon name={ICON[e.type]} size={14} className="mt-[2px]" />
+            <span>
+              <b>{who(e.actor_id, players, userId)}</b>{' '}
+              {narrate(e, players, buildings, userId)}
+            </span>
           </motion.p>
         ))}
       </AnimatePresence>
@@ -79,8 +83,13 @@ function narrate(e, players, buildings, userId) {
     if (e.payload.success) {
       return (
         <>
-          le {v(mine, 'robó', 'robaste')} {e.payload.amount}
-          {RES_ICON[e.payload.resource]} a <b>{target}</b>
+          le {v(mine, 'robó', 'robaste')} {e.payload.amount}{' '}
+          <PixelIcon
+            name={RES_ICON[e.payload.resource]}
+            size={11}
+            title={RES_LABEL[e.payload.resource]}
+          />{' '}
+          a <b>{target}</b>
         </>
       )
     }

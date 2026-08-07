@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
-import { RESOURCES } from '../../data/art.js'
+import { RESOURCES, SABOTAGE_ICON } from '../../data/art.js'
+import { PixelIcon } from '../PixelIcon.jsx'
 import { Button } from '../ui.jsx'
 
 const ACTION = { steal: 'Robo', block: 'Bloqueo', damage: 'Daño', spy: 'Espionaje' }
@@ -13,14 +14,21 @@ export function SpyReport({ report, name, buildings, onClose }) {
       animate={{ opacity: 1 }}
       className="bg-aldea-bg/95 absolute inset-0 z-20 flex flex-col gap-3 overflow-y-auto p-4"
     >
-      <h2 className="text-aldea-accent text-center">👁️ Informe sobre {name}</h2>
+      <h2 className="text-aldea-accent flex items-center justify-center gap-2 py-2">
+        <PixelIcon name="espionaje" size={16} />
+        Informe sobre {name}
+      </h2>
 
       <div className="bg-aldea-panel flex flex-col gap-2 rounded p-3">
         <p className="opacity-60">Recursos</p>
         <div className="grid grid-cols-4 gap-1">
           {RESOURCES.map((r) => (
-            <div key={r.key} className="bg-aldea-bg flex justify-center gap-1 rounded py-2">
-              {r.icon} {report.resources?.[r.key] ?? 0}
+            <div
+              key={r.key}
+              title={r.label}
+              className="bg-aldea-bg flex items-center justify-center gap-1 rounded py-2"
+            >
+              <PixelIcon name={r.icon} size={12} /> {report.resources?.[r.key] ?? 0}
             </div>
           ))}
         </div>
@@ -31,10 +39,16 @@ export function SpyReport({ report, name, buildings, onClose }) {
         {report.decision?.build || report.decision?.sabotage ? (
           <>
             {report.decision.build && (
-              <p>🏠 Construye {buildings[report.decision.build]?.name ?? report.decision.build}</p>
+              <p className="flex items-center gap-2">
+                <PixelIcon name="casa" size={12} />
+                Construye {buildings[report.decision.build]?.name ?? report.decision.build}
+              </p>
             )}
             {report.decision.sabotage && (
-              <p>🗡 {ACTION[report.decision.sabotage] ?? report.decision.sabotage}</p>
+              <p className="flex items-center gap-2">
+                <PixelIcon name={SABOTAGE_ICON[report.decision.sabotage] ?? 'robo'} size={12} />
+                {ACTION[report.decision.sabotage] ?? report.decision.sabotage}
+              </p>
             )}
           </>
         ) : (

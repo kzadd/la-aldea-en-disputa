@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react'
-import { loadMyStats } from '../lib/api.js'
-import { CHARACTER_ICON } from '../data/art.js'
+import { Avatar } from '../components/Avatar.jsx'
+import { PixelIcon } from '../components/PixelIcon.jsx'
 import { Button, Panel } from '../components/ui.jsx'
-
-const PATH_ICON = {
-  constructor: '🏠',
-  acumulador: '📦',
-  superviviente: '🛡',
-  saboteador: '🏴',
-}
+import { PATH_ICON } from '../data/art.js'
+import { CHARACTER_SPRITE } from '../data/icons.js'
+import { loadMyStats } from '../lib/api.js'
 
 // Perfil personal: estadísticas completas + historial (GAME_DESIGN §10.2)
 export default function Profile({ userId, profile, characters, onBack }) {
   const [data, setData] = useState(null)
 
   useEffect(() => {
-    loadMyStats(userId).then(setData).catch(() => setData({ stats: null, recent: [] }))
+    loadMyStats(userId)
+      .then(setData)
+      .catch(() => setData({ stats: null, recent: [] }))
   }, [userId])
 
   if (!data) return <p className="p-4">Cargando…</p>
@@ -23,7 +21,10 @@ export default function Profile({ userId, profile, characters, onBack }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-aldea-accent py-2 text-center">{profile.nickname}</h1>
+      <h1 className="text-aldea-accent flex items-center justify-center gap-2 py-2 leading-[normal]">
+        <Avatar avatar={profile.avatar} nickname={profile.nickname} size={20} frame={false} />
+        {profile.nickname}
+      </h1>
 
       {!s ? (
         <Panel>
@@ -39,18 +40,22 @@ export default function Profile({ userId, profile, characters, onBack }) {
               <Stat label="Ganadas" value={s.games_won} />
               <Stat label="Winrate" value={`${s.winrate ?? 0}%`} />
             </div>
-            <ul className="flex flex-col gap-1 opacity-70">
-              <li>
-                Personaje más usado: {CHARACTER_ICON[s.favorite_character]}{' '}
-                {characters[s.favorite_character]?.name ?? '—'}
-              </li>
-              <li>
-                Mejor winrate con: {CHARACTER_ICON[s.best_character]}{' '}
-                {characters[s.best_character]?.name ?? '—'}
-              </li>
-              <li>
-                Camino más usado: {PATH_ICON[s.most_used_path]} {s.most_used_path ?? '—'}
-              </li>
+            <ul className="flex flex-col gap-2 opacity-70">
+              <Line
+                icon={CHARACTER_SPRITE[s.favorite_character]}
+                label="Más usado"
+                value={characters[s.favorite_character]?.name ?? '—'}
+              />
+              <Line
+                icon={CHARACTER_SPRITE[s.best_character]}
+                label="Mejor winrate"
+                value={characters[s.best_character]?.name ?? '—'}
+              />
+              <Line
+                icon={PATH_ICON[s.most_used_path]}
+                label="Camino"
+                value={s.most_used_path ?? '—'}
+              />
             </ul>
           </Panel>
 
@@ -59,14 +64,18 @@ export default function Profile({ userId, profile, characters, onBack }) {
               <p className="opacity-60">Sin historial.</p>
             ) : (
               <ul className="flex flex-col gap-2">
-                {data.recent.map((g) => (
+                {data.recent.map(g => (
                   <li key={g.game_id} className="bg-aldea-bg flex items-center gap-2 rounded p-2">
-                    <span>{g.won ? '🏆' : '·'}</span>
-                    <span>{CHARACTER_ICON[g.character_key]}</span>
+                    {g.won ? (
+                      <PixelIcon name="trofeo" size={12} title="Victoria" />
+                    ) : (
+                      <span className="w-[12px] text-center opacity-40">·</span>
+                    )}
+                    <PixelIcon name={CHARACTER_SPRITE[g.character_key]} size={12} />
                     <span className="min-w-0 flex-1 truncate opacity-70">
                       {new Date(g.finished_at).toLocaleDateString('es', {
                         day: '2-digit',
-                        month: '2-digit',
+                        month: '2-digit'
                       })}{' '}
                       · {g.players}j
                     </span>
@@ -79,10 +88,20 @@ export default function Profile({ userId, profile, characters, onBack }) {
         </>
       )}
 
-      <Button full tone="ghost" onClick={onBack}>
+      <Button full onClick={onBack}>
         Volver
       </Button>
     </div>
+  )
+}
+
+function Line({ icon, label, value }) {
+  return (
+    <li className="flex items-center gap-2">
+      {icon && <PixelIcon name={icon} size={12} />}
+      <span className="opacity-60">{label}:</span>
+      <span>{value}</span>
+    </li>
   )
 }
 

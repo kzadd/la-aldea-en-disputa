@@ -1,4 +1,5 @@
-import { RESOURCES, SABOTAGES, costLabel } from '../../data/art.js'
+import { RESOURCES, SABOTAGES } from '../../data/art.js'
+import { PixelIcon } from '../PixelIcon.jsx'
 
 // Las 4 acciones, siempre visibles (GAME_DESIGN §5.1). Se deshabilitan por
 // cooldown o por falta de recursos; el servidor revalida todo igual.
@@ -30,22 +31,21 @@ export function SabotagePanel({
           return (
             <button
               key={s.type}
+              type="button"
               disabled={disabled || cd || poor}
               onClick={() =>
                 s.type === 'spy'
                   ? onChange({ type: 'spy' })
                   : onChange(on ? null : { type: s.type, params: defaults(s.type) })
               }
-              title={cd ? `Disponible en la ronda ${cdUntil(s.type)}` : costLabel(s.cost)}
+              title={cd ? `Disponible en la ronda ${cdUntil(s.type)}` : s.label}
               className={`bg-aldea-panel flex flex-col items-center gap-1 rounded p-2 disabled:opacity-30 ${
                 on ? 'ring-aldea-accent ring-2' : ''
               }`}
             >
-              <span className="text-lg">{s.icon}</span>
+              <PixelIcon name={s.icon} size={18} />
               <span className="text-[8px]">{s.label}</span>
-              <span className="text-[8px] opacity-60">
-                {cd ? `⏳ r${cdUntil(s.type)}` : costLabel(s.cost)}
-              </span>
+              <Cost cost={s.cost} cd={cd ? cdUntil(s.type) : null} />
             </button>
           )
         })}
@@ -62,14 +62,16 @@ export function SabotagePanel({
               {RESOURCES.map((r) => (
                 <button
                   key={r.key}
+                  type="button"
                   onClick={() => onChange({ ...sabotage, params: { resource: r.key } })}
-                  className={`rounded py-2 ${
+                  title={r.label}
+                  className={`flex items-center justify-center rounded py-2 ${
                     sabotage.params?.resource === r.key
                       ? 'bg-aldea-accent text-aldea-bg'
                       : 'bg-aldea-bg'
                   }`}
                 >
-                  {r.icon}
+                  <PixelIcon name={r.icon} size={14} />
                 </button>
               ))}
             </div>
@@ -86,13 +88,15 @@ export function SabotagePanel({
                   {targetBuildings.map((b) => (
                     <button
                       key={b.id}
+                      type="button"
                       onClick={() => onChange({ ...sabotage, params: { building_id: b.id } })}
-                      className={`rounded px-2 py-2 text-left ${
+                      className={`flex items-center gap-2 rounded px-2 py-2 text-left ${
                         sabotage.params?.building_id === b.id
                           ? 'bg-aldea-accent text-aldea-bg'
                           : 'bg-aldea-bg'
                       }`}
                     >
+                      <PixelIcon name="casa" size={12} />
                       {buildings[b.building_key]?.name ?? b.building_key}
                     </button>
                   ))}
@@ -108,10 +112,12 @@ export function SabotagePanel({
                 Verás sus recursos, su decisión de esta ronda y su misión secreta. Nadie se entera.
               </p>
               <button
+                type="button"
                 disabled={!target || spying}
                 onClick={() => onSpy(target)}
-                className="bg-aldea-accent text-aldea-bg rounded px-3 py-2 disabled:opacity-40"
+                className="bg-aldea-accent text-aldea-bg flex items-center justify-center gap-2 rounded px-3 py-2 disabled:opacity-40"
               >
+                <PixelIcon name="espionaje" size={12} />
                 {spying ? 'Espiando…' : 'Espiar ahora'}
               </button>
             </>
@@ -122,4 +128,19 @@ export function SabotagePanel({
   )
 }
 
+function Cost({ cost, cd }) {
+  if (cd) return <span className="text-[8px] opacity-60">r{cd}</span>
+  return (
+    <span className="flex items-center gap-1 text-[8px] opacity-70">
+      {Object.entries(cost).map(([k, v]) => (
+        <span key={k} className="flex items-center gap-[1px]">
+          {v}
+          <PixelIcon name={RES_SPRITE[k]} size={10} />
+        </span>
+      ))}
+    </span>
+  )
+}
+
+const RES_SPRITE = { wood: 'madera', stone: 'piedra', gold: 'oro', food: 'comida' }
 const defaults = (type) => (type === 'steal' ? { resource: 'wood' } : {})

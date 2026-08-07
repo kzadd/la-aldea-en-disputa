@@ -3,11 +3,20 @@ import { leaveRoom, startGame } from '../lib/api.js'
 import { useRoom } from '../hooks/useRoom.js'
 import { Button, Panel } from '../components/ui.jsx'
 import { Leaderboard } from '../components/Leaderboard.jsx'
+import { PixelIcon } from '../components/PixelIcon.jsx'
 
 export default function Lobby({ roomId, userId, onGame, onLeave }) {
   const { room, players, gameId } = useRoom(roomId)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
+  const [copiado, setCopiado] = useState(false)
+
+  const copiar = async () => {
+    if (!room) return
+    await copiarAlPortapapeles(room.code)
+    setCopiado(true)
+    setTimeout(() => setCopiado(false), 1800)
+  }
 
   // El host inicia y todos navegan por realtime (ARCHITECTURE §5)
   useEffect(() => {
@@ -23,14 +32,23 @@ export default function Lobby({ roomId, userId, onGame, onLeave }) {
       <Panel className="items-center text-center">
         <p className="opacity-60">Código de sala</p>
         <p className="text-aldea-accent text-2xl tracking-[0.3em]">{room.code}</p>
-        <p className="opacity-60">Compártelo para que entren</p>
+        <div className="grid w-full grid-cols-2 gap-2">
+          <Button tone="ghost" onClick={copiar}>
+            <PixelIcon name="copiar" size={14} />
+            {copiado ? '¡Copiado!' : 'Copiar'}
+          </Button>
+          <Button tone="ghost" onClick={() => compartirWhatsApp(room.code)}>
+            <PixelIcon name="whatsapp" size={14} />
+            WhatsApp
+          </Button>
+        </div>
       </Panel>
 
       <Panel title={`Jugadores (${players.length}/${room.max_players})`}>
         <ul className="flex flex-col gap-2">
           {players.map((p) => (
             <li key={p.user_id} className="bg-aldea-bg flex items-center gap-2 rounded p-2">
-              <span>🧑</span>
+              <PixelIcon name="persona" size={14} />
               <span>{p.profiles?.nickname ?? '—'}</span>
               {p.user_id === room.host_id && <span className="ml-auto opacity-60">host</span>}
             </li>
@@ -84,4 +102,39 @@ export default function Lobby({ roomId, userId, onGame, onLeave }) {
       </Button>
     </div>
   )
+}
+
+// `navigator.clipboard` solo existe en contexto seguro (https o localhost). Al
+// probar por IP en la red local no está, así que hace falta el plan B.
+async function copiarAlPortapapeles(texto) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(texto)
+      return true
+    }
+  } catch {
+    /* cae al plan B */
+  }
+  const ta = document.createElement('textarea')
+  ta.value = texto
+  ta.setAttribute('readonly', '')
+  ta.style.position = 'fixed'
+  ta.style.opacity = '0'
+  document.body.appendChild(ta)
+  ta.select()
+  try {
+    document.execCommand('copy')
+    return true
+  } finally {
+    document.body.removeChild(ta)
+  }
+}
+
+function compartirWhatsApp(code) {
+  const texto =
+    `Entrá a mi sala en La Aldea en Disputa\n` +
+    `Código: ${code}\n` +
+    `${window.location.origin}`
+  // wa.me abre la app instalada en móvil y WhatsApp Web en escritorio
+  window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank', 'noopener')
 }
