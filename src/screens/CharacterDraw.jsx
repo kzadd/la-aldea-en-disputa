@@ -1,0 +1,88 @@
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+import { getMyMission } from '../lib/api.js'
+import { CHARACTER_ICON } from '../data/art.js'
+import { Button, Panel } from '../components/ui.jsx'
+
+const SPIN_MS = 2200
+
+// Sorteo en vivo (GAME_DESIGN §2.3): el personaje es público, la misión no.
+export default function CharacterDraw({ gameId, userId, players, characters, onDone }) {
+  const [spinning, setSpinning] = useState(true)
+  const [face, setFace] = useState(0)
+  const [mission, setMission] = useState(null)
+  const keys = Object.keys(characters)
+  const me = players.find((p) => p.user_id === userId)
+
+  useEffect(() => {
+    const spin = setInterval(() => setFace((f) => f + 1), 90)
+    const stop = setTimeout(() => {
+      clearInterval(spin)
+      setSpinning(false)
+    }, SPIN_MS)
+    getMyMission(gameId).then((m) => setMission(m?.[0] ?? null))
+    return () => {
+      clearInterval(spin)
+      clearTimeout(stop)
+    }
+  }, [gameId])
+
+  if (!me || keys.length === 0) return <p className="p-4">Repartiendo…</p>
+
+  const shown = spinning ? keys[face % keys.length] : me.character_key
+  const char = characters[shown]
+
+  return (
+    <div className="flex flex-col gap-4">
+      <h1 className="text-aldea-accent py-2 text-center">Tu personaje</h1>
+
+      <motion.div
+        key={shown}
+        animate={spinning ? { scale: 1 } : { scale: [1, 1.15, 1] }}
+        transition={{ duration: 0.5 }}
+        className="bg-aldea-panel flex flex-col items-center gap-3 rounded p-6 text-center"
+      >
+        <span className="text-5xl">{CHARACTER_ICON[shown] ?? '❓'}</span>
+        <p className="text-aldea-accent">{char?.name}</p>
+        {!spinning && (
+          <>
+            <p className="leading-relaxed opacity-80">{char?.passive_text}</p>
+            <p className="opacity-50">Camino: {char?.path}</p>
+          </>
+        )}
+      </motion.div>
+
+      {!spinning && (
+        <>
+          <Panel title="🤫 Tu misión secreta">
+            {mission ? (
+              <>
+                <p className="text-aldea-accent">{mission.name}</p>
+                <p className="leading-relaxed opacity-80">{mission.description}</p>
+                <p className="opacity-50">+{mission.points} puntos · nadie más la ve</p>
+              </>
+            ) : (
+              <p className="opacity-60">Cargando…</p>
+            )}
+          </Panel>
+
+          <Panel title="En la mesa">
+            <ul className="flex flex-col gap-2">
+              {players.map((p) => (
+                <li key={p.user_id} className="bg-aldea-bg flex items-center gap-2 rounded p-2">
+                  <span>{CHARACTER_ICON[p.character_key] ?? '❓'}</span>
+                  <span>{p.user_id === userId ? 'Tú' : p.profiles?.nickname}</span>
+                  <span className="ml-auto opacity-60">{characters[p.character_key]?.name}</span>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+
+          <Button full onClick={onDone}>
+            A jugar
+          </Button>
+        </>
+      )}
+    </div>
+  )
+}

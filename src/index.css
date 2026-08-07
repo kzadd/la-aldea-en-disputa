@@ -1,0 +1,76 @@
+@import 'tailwindcss';
+
+/* Fuente autoalojada: la PWA tiene que funcionar sin red (SIL OFL 1.1) */
+@font-face {
+  font-family: 'Press Start 2P';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/press-start-2p-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+
+@theme {
+  --color-aldea-bg: #1a1410;
+  --color-aldea-panel: #2b211a;
+  --color-aldea-ink: #f0e0c8;
+  --color-aldea-accent: #d9a441;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-aldea-bg);
+  color: var(--color-aldea-ink);
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  -webkit-font-smoothing: none;
+  overscroll-behavior: none;
+  /* Textura sutil de "papel viejo" sin imágenes */
+  background-image: radial-gradient(circle at 50% 0%, #2a201a 0%, var(--color-aldea-bg) 70%);
+  background-attachment: fixed;
+}
+
+img {
+  image-rendering: pixelated;
+}
+
+/* Bordes duros: nada de esquinas redondeadas suaves en pixel art */
+.rounded,
+.rounded-lg {
+  border-radius: 0 !important;
+}
+
+/* Relieve de 2px estilo consola de 8 bits */
+.bg-aldea-panel {
+  box-shadow:
+    inset 2px 2px 0 #3b2d23,
+    inset -2px -2px 0 #150f0c;
+}
+
+button:not(:disabled):active {
+  transform: translateY(2px);
+}
+
+/* Evita el zoom por doble tap y la selección accidental durante la partida */
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+@keyframes aldea-pop {
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.06); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pop {
+  animation: aldea-pop 0.28s steps(4, end);
+}
