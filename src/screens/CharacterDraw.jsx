@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { getMyMission } from '../lib/api.js'
+import { enterGame, getMyMission } from '../lib/api.js'
 import { CHARACTER_SPRITE } from '../data/icons.js'
 import { PixelIcon } from '../components/PixelIcon.jsx'
 import { Button, Panel } from '../components/ui.jsx'
@@ -10,6 +10,7 @@ const SPIN_MS = 2200
 // Sorteo en vivo (GAME_DESIGN §2.3): el personaje es público, la misión no.
 export default function CharacterDraw({ gameId, userId, players, characters, onDone }) {
   const [spinning, setSpinning] = useState(true)
+  const [entrando, setEntrando] = useState(false)
   const [face, setFace] = useState(0)
   const [mission, setMission] = useState(null)
   const keys = Object.keys(characters)
@@ -79,7 +80,22 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
             </ul>
           </Panel>
 
-          <Button full onClick={onDone}>
+          {/* Avisar al servidor acá y no al montar es lo que hace que el reloj
+              de la ronda 1 arranque cuando entró el último, no cuando el host
+              tocó "Iniciar". */}
+          <Button
+            full
+            disabled={entrando}
+            onClick={async () => {
+              setEntrando(true)
+              try {
+                await enterGame(gameId)
+              } catch {
+                /* si falla, el tope del servidor cubre la ronda igual */
+              }
+              onDone()
+            }}
+          >
             A jugar
           </Button>
         </>

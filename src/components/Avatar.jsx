@@ -21,8 +21,10 @@ export function Avatar({
   onClick,
   title,
 }) {
-  const tint = avatar === 'aldeano' ? { a: GORROS[hash(nickname) % GORROS.length] } : undefined
-  const sprite = <PixelIcon name={AVATAR_SPRITE(avatar)} size={size} tint={tint} />
+  // Puede llegar null desde una consulta con join, no solo undefined
+  const key = avatar || 'aldeano'
+  const tint = key === 'aldeano' ? { a: GORROS[hash(nickname) % GORROS.length] } : undefined
+  const sprite = <PixelIcon name={AVATAR_SPRITE(key)} size={size} tint={tint} />
   if (!frame) return sprite
 
   const cls = 'bg-aldea-bg flex shrink-0 items-center justify-center rounded'

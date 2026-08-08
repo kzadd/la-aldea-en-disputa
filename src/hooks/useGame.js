@@ -26,7 +26,7 @@ export function useGame(gameId, userId) {
       supabase.from('rooms').select('*').eq('id', game.room_id).maybeSingle(),
       supabase
         .from('game_players')
-        .select('*, profiles(nickname)')
+        .select('*, profiles(nickname, avatar)')
         .eq('game_id', gameId),
       supabase.from('game_market').select('slot, building_key').eq('game_id', gameId).order('slot'),
       supabase.from('game_buildings').select('*').eq('game_id', gameId),

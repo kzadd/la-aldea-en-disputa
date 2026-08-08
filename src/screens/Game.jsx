@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react'
-import { amITargeted, getMyMission, setComebackPreference, spy, submitAction } from '../lib/api.js'
+import {
+  amITargeted,
+  cancelAction,
+  cancelGame,
+  enterGame,
+  getMyMission,
+  setComebackPreference,
+  spy,
+  submitAction,
+} from '../lib/api.js'
 import { useGame } from '../hooks/useGame.js'
 import { ResourceBar } from '../components/game/ResourceBar.jsx'
 import { RoundTimer } from '../components/game/RoundTimer.jsx'
@@ -11,6 +20,7 @@ import { SpyReport } from '../components/game/SpyReport.jsx'
 import { Button } from '../components/ui.jsx'
 import { PixelIcon } from '../components/PixelIcon.jsx'
 import { RESOURCES, RES_ICON, RES_LABEL, SABOTAGES } from '../data/art.js'
+import CharacterModal from '../components/CharacterModal.jsx'
 
 export default function Game({ gameId, userId, catalogs, onFinished }) {
   const { game, room, players, market, buildings, events, confirmed, cooldowns, me, loading } =
@@ -26,6 +36,8 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
   const [mission, setMission] = useState(null)
   const [showMission, setShowMission] = useState(false)
   const [showPref, setShowPref] = useState(false)
+  const [inspect, setInspect] = useState(null)
+  const [confirmarFin, setConfirmarFin] = useState(false)
 
   const round = game?.current_round
   const phase = game?.round_phase
@@ -40,8 +52,15 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
   }, [round])
 
   useEffect(() => {
-    if (game?.status === 'finished') onFinished()
-  }, [game?.status, onFinished])
+    // 'cancelled' también termina la partida: el host la cortó
+    if (game && game.status !== 'playing' && game.status !== 'assigning') onFinished()
+  }, [game?.status, game, onFinished])
+
+  // Idempotente: cubre a quien recarga y se salta el sorteo. El reloj de la
+  // ronda 1 no arranca de verdad hasta que entraron todos.
+  useEffect(() => {
+    if (gameId) enterGame(gameId).catch(() => {})
+  }, [gameId])
 
   // Tu misión secreta, a mano durante toda la partida (§8)
   useEffect(() => {
@@ -62,6 +81,13 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
 
   const isDecision = phase === 'decision'
   const iConfirmed = confirmed.includes(userId)
+  const inspectado = players.find((p) => p.user_id === inspect)
+  const isHost = room?.host_id === userId
+
+  // Mientras alguien sigue en el sorteo el reloj todavía no cuenta de verdad:
+  // el servidor lo reinicia entero cuando entra el último (RPC enter_game).
+  const faltanEntrar = players.filter((p) => !p.entered_at).length
+  const esperandoEntradas = round === 1 && faltanEntrar > 0
   const limit = catalogs.characters[me.character_key]?.storage_limit ?? 10
 
   const spend = { wood: 0, stone: 0, gold: 0, food: 0 }
@@ -116,6 +142,18 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
     }
   }
 
+  const deshacer = async () => {
+    setBusy(true)
+    setError(null)
+    try {
+      await cancelAction(gameId)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const doSpy = async (t) => {
     setSpying(true)
     setError(null)
@@ -138,7 +176,16 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
         limit={limit}
         round={round}
         maxRounds={room?.max_rounds ?? '?'}
-        timer={game.round_deadline && <RoundTimer deadline={game.round_deadline} />}
+        timer={
+          esperandoEntradas ? (
+            <span className="bg-aldea-bg flex items-center gap-1 rounded px-2 py-1">
+              <PixelIcon name="reloj" size={10} />
+              esperando {faltanEntrar}
+            </span>
+          ) : (
+            game.round_deadline && <RoundTimer deadline={game.round_deadline} />
+          )
+        }
       />
 
       <PlayersStrip
@@ -147,9 +194,33 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
         confirmed={confirmed}
         userId={userId}
         targetId={target}
-        onTarget={isDecision && sabotage ? setTarget : null}
+        onInspect={setInspect}
         comeback={comeback}
       />
+
+      {inspectado && (
+        <CharacterModal
+          character={catalogs.characters[inspectado.character_key]}
+          jugador={{
+            nickname:
+              inspectado.user_id === userId ? 'Tú' : (inspectado.profiles?.nickname ?? '—'),
+            avatar: inspectado.profiles?.avatar,
+          }}
+          extra={
+            <>
+              <li className="flex items-center gap-2">
+                <PixelIcon name="trofeo" size={12} />
+                {inspectado.points} puntos
+              </li>
+              <li className="flex items-center gap-2">
+                <PixelIcon name="casa" size={12} />
+                {buildings.filter((b) => b.user_id === inspectado.user_id).length} construcciones
+              </li>
+            </>
+          }
+          onClose={() => setInspect(null)}
+        />
+      )}
 
       {myComeback && (
         <div className="bg-aldea-panel animate-pop flex items-center gap-2 rounded p-2">
@@ -166,9 +237,10 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
           <button
             type="button"
             onClick={() => setShowPref((v) => !v)}
-            className="bg-aldea-bg rounded px-2 py-1"
+            className="bg-aldea-bg flex items-center gap-1 rounded px-2 py-1"
           >
-            {showPref ? '▲' : 'elegir'}
+            {showPref ? 'cerrar' : 'elegir'}
+            <PixelIcon name={showPref ? 'flecha_arriba' : 'flecha_abajo'} size={10} />
           </button>
         </div>
       )}
@@ -207,11 +279,17 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
       {mission && (
         <button
           onClick={() => setShowMission((v) => !v)}
-          className="bg-aldea-panel rounded p-2 text-left leading-relaxed"
+          className="bg-aldea-panel flex items-start gap-2 rounded p-2 text-left leading-relaxed"
         >
-          <PixelIcon name="secreto" size={12} />{' '}
-          {showMission ? mission.description : 'Tu misión secreta'}
-          <span className="opacity-40"> {showMission ? '▲' : '▼'}</span>
+          <PixelIcon name="secreto" size={12} className="mt-[2px]" />
+          <span className="min-w-0 flex-1">
+            {showMission ? mission.description : 'Tu misión secreta'}
+          </span>
+          <PixelIcon
+            name={showMission ? 'flecha_arriba' : 'flecha_abajo'}
+            size={10}
+            className="mt-[2px]"
+          />
         </button>
       )}
 
@@ -243,7 +321,10 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
         me={me}
         round={round}
         cooldowns={cooldowns}
+        players={players}
+        userId={userId}
         target={target}
+        onTarget={setTarget}
         targetName={nameOf(target)}
         targetBuildings={targetBuildings}
         buildings={catalogs.buildings}
@@ -253,20 +334,56 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
 
       {error && <p className="text-center text-red-400">{error}</p>}
 
-      <Button
-        full
-        disabled={!isDecision || busy || !canPay || !sabotageReady}
-        tone={iConfirmed ? 'ghost' : 'accent'}
-        onClick={confirm}
-      >
-        {!isDecision
-          ? 'Resolviendo…'
-          : iConfirmed
-            ? 'Cambiar decisión'
+      {/* Confirmado no es definitivo: se puede deshacer mientras la ronda siga
+          abierta. Antes el botón volvía a enviar lo mismo y parecía trabado. */}
+      {iConfirmed ? (
+        <div className="flex flex-col gap-2">
+          <p className="flex items-center justify-center gap-2 opacity-70">
+            <PixelIcon name="check" size={12} />
+            Decisión enviada · esperando a los demás
+          </p>
+          <Button full tone="ghost" disabled={!isDecision || busy} onClick={deshacer}>
+            Cambiar decisión
+          </Button>
+        </div>
+      ) : (
+        <Button
+          full
+          disabled={!isDecision || busy || !canPay || !sabotageReady}
+          onClick={confirm}
+        >
+          {!isDecision
+            ? 'Resolviendo…'
             : slot === null && !sabotage
               ? 'Guardar recursos'
               : 'Confirmar decisión'}
-      </Button>
+        </Button>
+      )}
+
+      {/* Secundario a propósito: es una salida de emergencia, no una jugada */}
+      {isHost && (
+        <button
+          type="button"
+          disabled={busy}
+          className={`self-center rounded px-3 py-1 text-[8px] ${
+            confirmarFin ? 'bg-red-900' : 'bg-aldea-panel opacity-70'
+          }`}
+          onClick={async () => {
+            if (!confirmarFin) return setConfirmarFin(true)
+            setBusy(true)
+            try {
+              await cancelGame(gameId)
+            } catch (e) {
+              setError(e.message)
+            } finally {
+              setBusy(false)
+              setConfirmarFin(false)
+            }
+          }}
+        >
+          {confirmarFin ? 'Sí, cancelar (no puntúa)' : 'Cancelar partida'}
+        </button>
+      )}
 
       {spyReport && (
         <SpyReport
@@ -284,6 +401,7 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
           buildings={catalogs.buildings}
           round={round}
           userId={userId}
+          deadline={game.round_deadline}
         />
       )}
     </div>

@@ -14,7 +14,7 @@ export function useRoom(roomId) {
       supabase.from('rooms').select('*').eq('id', roomId).maybeSingle(),
       supabase
         .from('room_players')
-        .select('user_id, joined_at, profiles(nickname)')
+        .select('user_id, joined_at, ready, profiles(nickname, avatar)')
         .eq('room_id', roomId)
         .order('joined_at'),
       supabase.from('games').select('id, status').eq('room_id', roomId),

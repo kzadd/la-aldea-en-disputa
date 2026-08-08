@@ -80,11 +80,13 @@ export async function recoverPlace(userId) {
   const room = (rp ?? []).map((r) => r.rooms).find((r) => r && r.status !== 'finished')
   if (!room) return { roomId: null, gameId: null }
 
+  // Una partida cancelada tampoco es "en curso": si no, al recargar te devuelve
+  // a una mesa que el host ya levantó.
   const { data: games } = await supabase
     .from('games')
     .select('id, status')
     .eq('room_id', room.id)
-    .neq('status', 'finished')
+    .not('status', 'in', '(finished,cancelled)')
   return { roomId: room.id, gameId: games?.[0]?.id ?? null }
 }
 
@@ -105,6 +107,18 @@ export const createRoom = (cfg) =>
 export const joinRoom = (code) => rpc('join_room', { p_code: code })
 export const leaveRoom = (roomId) => rpc('leave_room', { p_room_id: roomId })
 export const startGame = (roomId) => rpc('start_game', { p_room_id: roomId })
+export const setReady = (roomId, ready) => rpc('set_ready', { p_room_id: roomId, p_ready: ready })
+
+// Marca que ya terminaste el sorteo. Cuando entra el último, el servidor
+// reinicia el reloj de la ronda 1 para que todos arranquen con el tiempo entero.
+export const enterGame = (gameId) => rpc('enter_game', { p_game_id: gameId })
+
+// Deshace la confirmación de esta ronda (el espionaje ya ejecutado no se deshace)
+export const cancelAction = (gameId) => rpc('cancel_action', { p_game_id: gameId })
+
+// Solo el host: corta la partida. No puntúa ni cuenta para las estadísticas —
+// una partida a medias no representa un resultado.
+export const cancelGame = (gameId) => rpc('cancel_game', { p_game_id: gameId })
 export const getMyMission = (gameId) => rpc('get_my_mission', { p_game_id: gameId })
 
 // Se ejecuta al instante, antes de confirmar la decisión (GAME_DESIGN §5.2)

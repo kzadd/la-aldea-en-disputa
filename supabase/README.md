@@ -20,6 +20,11 @@ Proyecto Supabase nuevo e independiente de VETA / La Torre del Dragón (ARCHITEC
 | `migrations/20260807121100_recent_games_grants.sql` | Revoca `my_recent_games` a `anon` |
 | `migrations/20260807121200_accounts.sql` | Códigos de invitación, nickname único y alta de cuenta |
 | `migrations/20260807121300_avatars.sql` | Avatar de perfil + `set_my_avatar()` con lista blanca |
+| `migrations/20260807121400_leaderboard_avatar.sql` | El avatar también en el ranking |
+| `migrations/20260807121500_flujo_partida.sql` | Listos en el lobby, arranque sincronizado del reloj, deshacer decisión, reveal de 5 s, cierre del host |
+| `migrations/20260807121600_cancel_action_fix.sql` | `cancel_action` no toca `confirmed_at` (es NOT NULL) |
+| `migrations/20260807121700_tick_2s.sql` | `tick_games()` cada 2 s: el reveal se cierra a tiempo |
+| `migrations/20260807121800_cancelar_partida.sql` | Estado `cancelled`: el host corta sin puntuar |
 
 ## Cuentas y código de invitación
 
@@ -70,16 +75,35 @@ permita ver. Quién puede escuchar cada topic se decide en la política
 
 ## API para el cliente (paso 2)
 
-Solo estas seis son ejecutables por `authenticated`; el resto está revocado.
+Solo estas son ejecutables por `authenticated`; el resto está revocado.
 
 ```text
 create_room(max_players, target_points, max_rounds, decision_timer_seconds) -> rooms
 join_room(code) -> rooms
 leave_room(room_id)
-start_game(room_id) -> game_id
+set_ready(room_id, ready)
+start_game(room_id) -> game_id        -- exige a todos listos
+enter_game(game_id)                   -- "ya salí del sorteo"
 submit_action(game_id, build_slot, build_slot_2, sabotage_type, sabotage_target, sabotage_params)
+cancel_action(game_id)                -- deshace la confirmación de esta ronda
+cancel_game(game_id)                  -- solo el host; corta sin puntuar
 get_my_mission(game_id) -> mission
 ```
+
+### Cancelar no es terminar
+
+`cancel_game` deja la partida en `cancelled`, sin ganador y sin tocar
+`user_stats`. Una partida cortada a la mitad no es un resultado: puntuarla
+ensuciaba el ranking y el historial de todos los que estaban jugando.
+`my_recent_games` filtra por `finished`, así que tampoco aparece en el perfil.
+
+### El reloj de la ronda 1
+
+`start_game` deja un deadline holgado (`decision_timer + _draw_seconds()`), pero
+ese no es el reloj real: cuando el último jugador llama a `enter_game` —al tocar
+"A jugar" al final del sorteo— el deadline se reinicia al tiempo completo. Sin
+esto, quien se quedaba leyendo su misión entraba con la ronda ya empezada. Los
+45 s de `_draw_seconds()` son solo el tope por si alguien nunca entra.
 
 `resolve_round`, `_open_decision`, `finish_game` y `tick_games` son del servidor.
 El cliente nunca las llama.

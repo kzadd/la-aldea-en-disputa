@@ -13,10 +13,14 @@
 }
 
 @theme {
-  --color-aldea-bg: #1a1410;
-  --color-aldea-panel: #2b211a;
-  --color-aldea-ink: #f0e0c8;
-  --color-aldea-accent: #d9a441;
+  /* Paleta aclarada: la original quedaba casi negra en pantallas de móvil con
+     poco brillo. Se sube todo un escalón manteniendo el tono cálido. */
+  --color-aldea-bg: #2a2019;
+  --color-aldea-panel: #3b2d23;
+  --color-aldea-ink: #f5e9d5;
+  --color-aldea-accent: #e2ac4d;
+  --color-aldea-luz: #4d3b2e; /* borde iluminado del relieve */
+  --color-aldea-sombra: #221910; /* borde en sombra */
 }
 
 html,
@@ -33,8 +37,17 @@ body {
   -webkit-font-smoothing: none;
   overscroll-behavior: none;
   /* Textura sutil de "papel viejo" sin imágenes */
-  background-image: radial-gradient(circle at 50% 0%, #2a201a 0%, var(--color-aldea-bg) 70%);
+  background-image: radial-gradient(circle at 50% 0%, #4a382b 0%, var(--color-aldea-bg) 75%);
   background-attachment: fixed;
+  /* Juego, no documento: nada de seleccionar texto sin querer al tocar */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 img {
@@ -50,12 +63,43 @@ img {
 /* Relieve de 2px estilo consola de 8 bits */
 .bg-aldea-panel {
   box-shadow:
-    inset 2px 2px 0 #3b2d23,
-    inset -2px -2px 0 #150f0c;
+    inset 2px 2px 0 var(--color-aldea-luz),
+    inset -2px -2px 0 var(--color-aldea-sombra);
+}
+
+/* Todo botón es una tecla de 8 bits: relieve arriba/izquierda claro, abajo/
+   derecha oscuro, y al pulsarla se hunde. Es lo que da la respuesta táctil que
+   el hover no puede dar en un móvil. */
+button {
+  transition:
+    filter 0.1s steps(2, end),
+    transform 0.06s steps(2, end);
+  box-shadow:
+    inset 2px 2px 0 rgb(255 255 255 / 0.14),
+    inset -2px -2px 0 rgb(0 0 0 / 0.35);
+}
+
+button:disabled {
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  button:not(:disabled):hover {
+    filter: brightness(1.15);
+  }
 }
 
 button:not(:disabled):active {
   transform: translateY(2px);
+  filter: brightness(0.9);
+  box-shadow:
+    inset -2px -2px 0 rgb(255 255 255 / 0.1),
+    inset 2px 2px 0 rgb(0 0 0 / 0.4);
+}
+
+/* Lo que se puede tocar para saber más lleva cursor de ayuda en escritorio */
+[data-info] {
+  cursor: help;
 }
 
 /* Evita el zoom por doble tap y la selección accidental durante la partida */

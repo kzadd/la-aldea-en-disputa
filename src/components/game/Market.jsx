@@ -23,17 +23,26 @@ export function Market({ market, buildings, me, selected, onSelect, disabled }) 
             key={slot}
             disabled={disabled || !afford}
             onClick={() => onSelect(on ? null : slot)}
-            className={`bg-aldea-panel flex flex-col gap-1 rounded border-2 p-2 text-left transition disabled:opacity-40 ${
-              TIER_STYLE[b.tier]
-            } ${on ? 'ring-aldea-accent ring-2' : ''}`}
+            className={`flex flex-col gap-1 rounded border-2 p-2 text-left transition disabled:opacity-40 ${
+              on
+                ? 'border-aldea-accent bg-aldea-accent/20 ring-aldea-accent ring-2'
+                : `bg-aldea-panel ${TIER_STYLE[b.tier]}`
+            }`}
           >
             <span className="flex items-center justify-between gap-1">
-              <span className="text-aldea-accent">{b.name}</span>
+              <span className={on ? 'text-aldea-ink' : 'text-aldea-accent'}>{b.name}</span>
               <span className="flex items-center gap-1">
                 {b.points}
                 <PixelIcon name="trofeo" size={12} title="puntos" />
               </span>
             </span>
+            {/* Sin esto no había ninguna señal de cuál habías elegido */}
+            {on && (
+              <span className="text-aldea-accent flex items-center gap-1">
+                <PixelIcon name="check" size={10} />
+                Elegida
+              </span>
+            )}
             <span className="flex flex-wrap gap-2">
               {RESOURCES.filter((r) => cost[r.key] > 0).map((r) => (
                 <span

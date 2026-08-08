@@ -141,7 +141,15 @@ export default function App() {
       />
     )
   } else if (roomId) {
-    screen = <Lobby roomId={roomId} userId={userId} onGame={handleGame} onLeave={goHome} />
+    screen = (
+      <Lobby
+        roomId={roomId}
+        userId={userId}
+        characters={catalogs.characters}
+        onGame={handleGame}
+        onLeave={goHome}
+      />
+    )
   } else {
     screen = (
       <Home

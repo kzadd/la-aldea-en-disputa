@@ -30,11 +30,38 @@ export default function Results({ gameId, userId, characters, onHome }) {
 
   if (!data?.game) return <p className="p-4">Contando puntos…</p>
 
+  // Cancelada por el host: no hay resultado que mostrar. Enseñar una tabla de
+  // puntos daría a entender que alguien ganó, y no cuenta para nadie.
+  if (data.game.status === 'cancelled') {
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="text-aldea-accent flex items-center justify-center gap-2 py-2">
+          <PixelIcon name="bloqueo" size={16} />
+          Partida cancelada
+        </h1>
+        <Panel>
+          <p className="leading-relaxed">
+            El host cortó la partida antes de tiempo.
+          </p>
+          <p className="leading-relaxed opacity-60">
+            No hay ganador y no cuenta para las estadísticas ni para el ranking.
+          </p>
+        </Panel>
+        <Button full onClick={onHome}>
+          Volver al inicio
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-aldea-accent flex items-center justify-center gap-2 py-2">
-        {data.game.winner_id === userId && <PixelIcon name="trofeo" size={16} />}
-        {data.game.winner_id === userId ? '¡Ganaste!' : 'Fin de la partida'}
+        <PixelIcon name="trofeo" size={16} />
+        {/* Al que pierde también hay que decirle quién ganó, no solo "fin" */}
+        {data.game.winner_id === userId
+          ? '¡Ganaste!'
+          : `Ganó ${data.players.find((p) => p.user_id === data.game.winner_id)?.profiles?.nickname ?? '—'}`}
       </h1>
 
       {data.players.map((p, i) => {
