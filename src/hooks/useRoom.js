@@ -21,7 +21,11 @@ export function useRoom(roomId) {
     ])
     setRoom(r ?? null)
     setPlayers(p ?? [])
-    setGameId(g?.find((x) => x.status !== 'finished')?.id ?? null)
+    // 'cancelled' tampoco es una partida en curso. Sin excluirla, el lobby
+    // reenviaba a la mesa que el host acababa de levantar, que abría los
+    // resultados de una partida cancelada una y otra vez.
+    const enCurso = g?.find((x) => x.status !== 'finished' && x.status !== 'cancelled')
+    setGameId(enCurso?.id ?? null)
   }, [roomId])
 
   useEffect(() => {

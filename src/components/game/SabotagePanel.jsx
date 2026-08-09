@@ -190,7 +190,9 @@ export function SabotagePanel({
                         {s.label}
                       </span>
                       {cd ? (
-                        <span className="text-aldea-dim text-[10px] leading-none">ronda {cdUntil(s.type)}</span>
+                        <span className="text-aldea-dim text-[11px] leading-none">
+                          ronda {cdUntil(s.type)}
+                        </span>
                       ) : (
                         <span className="flex items-center gap-[5px]">
                           {Object.entries(s.cost).map(([k, v]) => (

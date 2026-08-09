@@ -220,9 +220,15 @@ export default function Lobby({ roomId, userId, onGame, onLeave }) {
 
       <button
         type="button"
+        // Si el servidor rechaza la salida hay que decirlo: antes la promesa
+        // fallaba, `onLeave()` no llegaba a correr y el botón parecía muerto.
         onClick={async () => {
-          await leaveRoom(roomId)
-          onLeave()
+          try {
+            await leaveRoom(roomId)
+            onLeave()
+          } catch (e) {
+            setError(e.message)
+          }
         }}
         className="text-aldea-dim hover:text-aldea-warm py-1 text-center text-[12px]"
       >

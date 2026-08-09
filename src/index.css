@@ -45,7 +45,9 @@
   --color-aldea-ink: #f2e7d5;
   --color-aldea-muted: #a08e78;
   --color-aldea-dim: #9d8b74;
-  --color-aldea-faint: #6f6154;
+  /* Era #6f6154: sobre el panel daba 2.9:1 de contraste, por debajo de
+     cualquier mínimo legible. Subido a 5:1 sin salirse de la paleta. */
+  --color-aldea-faint: #8f8070;
   --color-aldea-danger: #c0492e;
   --color-aldea-warm: #e07a5f;
   --color-aldea-green: #7fb069;
@@ -65,6 +67,14 @@ body {
   background: var(--color-aldea-void);
   color: var(--color-aldea-ink);
   font-family: var(--font-body);
+  /* Pixelify Sans en 400 deja el trazo de un píxel: a 12px, que es el tamaño
+     de casi todo el texto del juego, las letras se rompen. 500 es el peso que
+     usa el prototipo y el que hace legible el cuerpo sin engordarlo. */
+  font-weight: 500;
+  line-height: 1.55;
+  /* Las tipografías de píxel no tienen cursiva ni negrita reales en todos los
+     pesos; el navegador las inventaba inclinando y engrosando el bitmap. */
+  font-synthesis: none;
   overscroll-behavior: none;
   /* Juego, no documento: nada de seleccionar texto sin querer al tocar */
   user-select: none;
@@ -72,10 +82,17 @@ body {
 }
 
 input,
+textarea,
+button {
+  /* Los controles no heredan la tipografía del body por defecto */
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+input,
 textarea {
   user-select: text;
   -webkit-user-select: text;
-  font-family: var(--font-body);
 }
 
 input::placeholder {

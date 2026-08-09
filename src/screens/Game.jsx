@@ -94,7 +94,15 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
     return () => clearInterval(id);
   }, [gameId, phase, round]);
 
-  if (loading || !game || !me) return <p className="p-4">Cargando partida…</p>;
+  if (loading) return <p className="p-4">Cargando partida…</p>;
+  // Sin partida legible no hay nada que reintentar solo: antes se quedaba en
+  // "Cargando partida…" para siempre y parecía que la app se había colgado.
+  if (!game || !me)
+    return (
+      <p className="text-aldea-warm p-4 text-center text-[13px] leading-relaxed">
+        No pudimos cargar esta partida. Volvé al inicio y entrá de nuevo.
+      </p>
+    );
 
   const isDecision = phase === "decision";
   const iConfirmed = confirmed.includes(userId);
@@ -147,7 +155,11 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
     }
   };
 
-  const canPay = RESOURCES.every((r) => me[r.key] >= spend[r.key]);
+  // Construir y sabotear en la misma ronda se pagan del mismo bolsillo. Cada
+  // carta por separado puede estar a tu alcance y la suma no: sin este aviso el
+  // botón se quedaba gris sin decir por qué.
+  const faltantes = RESOURCES.filter((r) => me[r.key] < spend[r.key]);
+  const canPay = faltantes.length === 0;
   const targetBuildings = buildings.filter((b) => b.user_id === target);
   const sabotageReady =
     !sabotage ||
@@ -270,7 +282,7 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
                   key={r.key}
                   type="button"
                   onClick={() => savePref(r.key)}
-                  className={`flex flex-col items-center gap-1.5 rounded-md border py-2 text-[10px] leading-none transition ${
+                  className={`flex flex-col items-center gap-1.5 rounded-md border py-2 text-[11px] leading-none transition ${
                     on
                       ? "border-aldea-accent text-aldea-accent"
                       : "border-aldea-line text-aldea-dim hover:border-aldea-accent-dark hover:text-aldea-ink"
@@ -285,7 +297,7 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
             <button
               type="button"
               onClick={() => savePref(null)}
-              className={`flex flex-col items-center justify-center gap-1.5 rounded-md border py-2 text-[10px] leading-none transition ${
+              className={`flex flex-col items-center justify-center gap-1.5 rounded-md border py-2 text-[11px] leading-none transition ${
                 me.comeback_preference
                   ? "border-aldea-line text-aldea-dim hover:border-aldea-accent-dark hover:text-aldea-ink"
                   : "border-aldea-accent text-aldea-accent"
@@ -402,6 +414,18 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
 
       {error && (
         <p className="text-aldea-warm text-center text-[12px]">{error}</p>
+      )}
+
+      {editable && !canPay && (
+        <p className="text-aldea-warm flex flex-wrap items-center justify-center gap-1.5 text-center text-[12px]">
+          Con todo junto te faltan
+          {faltantes.map((r) => (
+            <span key={r.key} className="flex items-center gap-[4px]">
+              {spend[r.key] - me[r.key]}
+              <PixelIcon name={r.icon} size={13} title={r.label} />
+            </span>
+          ))}
+        </p>
       )}
 
       {/* Confirmado no es definitivo: se puede deshacer mientras la ronda siga

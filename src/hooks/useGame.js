@@ -20,7 +20,12 @@ export function useGame(gameId, userId) {
   const load = useCallback(async () => {
     if (!gameId) return
     const { data: game } = await supabase.from('games').select('*').eq('id', gameId).maybeSingle()
-    if (!game) return
+    // Sin esto, una partida ilegible dejaba "Cargando partida…" para siempre
+    // en vez de dar señales de que algo iba mal.
+    if (!game) {
+      setLoading(false)
+      return
+    }
 
     const [room, players, market, buildings, events, confirmed, cooldowns] = await Promise.all([
       supabase.from('rooms').select('*').eq('id', game.room_id).maybeSingle(),

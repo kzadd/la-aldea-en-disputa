@@ -27,13 +27,17 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
     getMyMission(gameId).then(m => setMission(m?.[0] ?? null))
   }, [gameId])
 
+  // La cuenta no arranca hasta saber qué personaje tocó: si no, con la red
+  // lenta la ruleta se gastaba entera detrás del "Repartiendo…" y al aparecer
+  // el resultado ya estaba quieto.
+  const listo = !!me && keys.length > 0
   useEffect(() => {
-    if (paso >= PASOS) return
+    if (!listo || paso >= PASOS) return
     const t = setTimeout(() => setPaso(p => p + 1), espera(paso))
     return () => clearTimeout(t)
-  }, [paso])
+  }, [paso, listo])
 
-  if (!me || keys.length === 0) return <p className="text-aldea-muted p-4">Repartiendo…</p>
+  if (!listo) return <p className="text-aldea-muted p-4">Repartiendo…</p>
 
   // Vos primero y el resto detrás, sin perder el color que a cada uno le tocó
   // por orden de llegada.
