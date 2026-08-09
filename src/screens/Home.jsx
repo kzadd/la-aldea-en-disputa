@@ -1,43 +1,47 @@
 import { useState } from 'react'
-import { createRoom, joinRoom, setNickname } from '../lib/api.js'
-import { Button, Field, Panel } from '../components/ui.jsx'
-import { PixelIcon } from '../components/PixelIcon.jsx'
 import { Avatar } from '../components/Avatar.jsx'
 import AvatarPicker from '../components/AvatarPicker.jsx'
+import { PixelIcon } from '../components/PixelIcon.jsx'
+import { Titulo } from '../components/Titulo.jsx'
+import { Button, Chip, Field, Input } from '../components/ui.jsx'
+import { createRoom, joinRoom, setNickname } from '../lib/api.js'
 
 // Sesiones de 20-40 min (GAME_DESIGN §1). El último abre los controles finos.
 const PRESETS = [
-  { label: 'Rápida', hint: '20 pts · 10 rondas · 30s', cfg: { targetPoints: 20, maxRounds: 10, timer: 30 } },
-  { label: 'Normal', hint: '30 pts · 15 rondas · 45s', cfg: { targetPoints: 30, maxRounds: 15, timer: 45 } },
-  { label: 'Larga', hint: '40 pts · 20 rondas · 60s', cfg: { targetPoints: 40, maxRounds: 20, timer: 60 } },
-  { label: 'Personalizada', hint: 'a tu medida', cfg: null },
+  {
+    label: 'Rápida',
+    hint: '20 pts · 10 rondas · 30s',
+    cfg: { targetPoints: 20, maxRounds: 10, timer: 30 }
+  },
+  {
+    label: 'Normal',
+    hint: '30 pts · 15 rondas · 45s',
+    cfg: { targetPoints: 30, maxRounds: 15, timer: 45 }
+  },
+  {
+    label: 'Larga',
+    hint: '40 pts · 20 rondas · 60s',
+    cfg: { targetPoints: 40, maxRounds: 20, timer: 60 }
+  },
+  { label: 'Personalizada', hint: 'a tu medida', cfg: null }
 ]
 
-// Cinta de píxeles: el remate decorativo de la tarjeta, sin imágenes.
-const CINTA = {
-  backgroundImage: 'repeating-linear-gradient(90deg, #d9a441 0 4px, transparent 4px 8px)',
-}
-
-export default function Home({
-  profile,
-  onProfile,
-  onRoom,
-  onOpenProfile,
-  onOpenRanking,
-  onSignOut,
-}) {
+export default function Home({ profile, onProfile, onRoom, onOpenProfile, onOpenRanking, onSignOut }) {
   const [code, setCode] = useState('')
   const [cfg, setCfg] = useState({ ...PRESETS[1].cfg, maxPlayers: 3 })
   const [preset, setPreset] = useState(1)
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState(null)
+  // Dos errores distintos: el de unirse pertenece a su panel —"esa sala no
+  // existe" al pie de la pantalla obligaba a buscar de qué hablaba—.
+  const [errorUnirse, setErrorUnirse] = useState(null)
+  const [errorCrear, setErrorCrear] = useState(null)
 
-  const applyPreset = (i) => {
+  const applyPreset = i => {
     setPreset(i)
     if (PRESETS[i].cfg) setCfg({ ...cfg, ...PRESETS[i].cfg })
   }
 
-  const run = async (fn) => {
+  const run = (setError) => async fn => {
     setBusy(true)
     setError(null)
     try {
@@ -48,124 +52,168 @@ export default function Home({
       setBusy(false)
     }
   }
+  const alUnirse = run(setErrorUnirse)
+  const alCrear = run(setErrorCrear)
 
   return (
     <div className="flex flex-col gap-4">
-      <header className="py-2 text-center">
-        <h1 className="text-aldea-accent text-[13px] leading-loose">
-          La Aldea
-          <br />
-          en Disputa
-        </h1>
-      </header>
+      <Titulo size={16} />
 
-      <Panel className="relative overflow-hidden">
-        <div className="absolute inset-x-0 top-0 h-[3px]" style={CINTA} />
-        <Bienvenida profile={profile} onProfile={onProfile} />
-        <div className="h-[2px] w-full opacity-40" style={CINTA} />
-        <div className="grid grid-cols-3 gap-2">
-          <Button tone="ghost" onClick={onOpenProfile} title="Tus estadísticas">
-            <PixelIcon name="stats" size={14} />
-            Perfil
-          </Button>
-          <Button tone="ghost" onClick={onOpenRanking} title="Ranking global">
-            <PixelIcon name="trofeo" size={14} />
-            Ranking
-          </Button>
-          <Button tone="ghost" onClick={onSignOut} title="Cerrar sesión">
-            <PixelIcon name="salir" size={14} />
-            Salir
-          </Button>
-        </div>
-      </Panel>
+      <Bienvenida profile={profile} onProfile={onProfile} />
 
-      <Panel title="Unirse a una sala">
+      <div className="grid grid-cols-3 gap-2">
+        <Button tone="ghost" onClick={onOpenProfile} className="bg-aldea-panel !py-3 !text-[12px]">
+          Perfil
+        </Button>
+        <Button tone="ghost" onClick={onOpenRanking} className="bg-aldea-panel !py-3 !text-[12px]">
+          Ranking
+        </Button>
+        <Button tone="salir" onClick={onSignOut} className="bg-aldea-panel !py-3 !text-[12px]">
+          Salir
+        </Button>
+      </div>
+
+      <div className="bg-aldea-panel border-aldea-line flex flex-col gap-2.5 rounded-lg border p-4">
+        <h2 className="font-title text-aldea-muted text-[11px] tracking-wide">UNIRSE A UNA SALA</h2>
         <div className="flex gap-2">
-          <input
+          <Input
             value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 6))}
+            onChange={e => {
+              setCode(e.target.value.toUpperCase().slice(0, 6))
+              setErrorUnirse(null) // el código cambió: el error ya no aplica
+            }}
+            error={!!errorUnirse}
             placeholder="CODIGO"
             aria-label="Código de sala"
-            className="bg-aldea-bg w-full min-w-0 rounded px-2 py-2 tracking-widest outline-none"
+            className="flex-1 tracking-[4px] uppercase"
           />
+          {/* Como en el diseño: relleno apagado mientras el código está
+              incompleto y amarillo lleno cuando ya se puede entrar. Sigue
+              deshabilitado, pero sin el velo del 40%: el propio color ya dice
+              que no está listo. */}
           <Button
+            tone={code.length >= 4 ? 'plano' : 'apagado'}
             disabled={busy || code.length < 4}
-            onClick={() => run(async () => onRoom((await joinRoom(code)).id))}
+            onClick={() => alUnirse(async () => onRoom((await joinRoom(code)).id))}
+            className="!px-5 !text-[13px] disabled:!opacity-100"
           >
             Entrar
           </Button>
         </div>
-      </Panel>
+        {errorUnirse && (
+          <p
+            className="border-aldea-danger text-aldea-warm flex items-center gap-2 rounded-lg border p-3 text-[12px] leading-snug"
+            style={{ background: 'rgba(192,73,46,.12)' }}
+          >
+            <span className="bg-aldea-warm inline-block h-2 w-2 shrink-0" />
+            {errorUnirse}
+          </p>
+        )}
+      </div>
 
-      <Panel title="Crear sala">
+      <div className="bg-aldea-panel border-aldea-line flex flex-col gap-3.5 rounded-lg border p-4">
+        <h2 className="font-title text-aldea-accent text-[11px] tracking-wide">CREAR SALA</h2>
+
         <Field label="Jugadores">
-          <div role="radiogroup" className="flex flex-wrap gap-1">
-            {[2, 3, 4, 5, 6, 7, 8].map((o) => (
-              <Choice
+          <div role="radiogroup" className="flex gap-1.5">
+            {[2, 3, 4, 5, 6, 7, 8].map(o => (
+              <Chip
                 key={o}
                 on={o === cfg.maxPlayers}
                 onClick={() => setCfg({ ...cfg, maxPlayers: o })}
+                className="!px-0"
               >
                 {o}
-              </Choice>
+              </Chip>
             ))}
           </div>
         </Field>
 
         <Field label="Duración">
-          <div role="radiogroup" className="flex flex-col gap-1">
+          <div role="radiogroup" className="flex flex-col gap-1.5">
             {PRESETS.map((p, i) => (
-              <Choice key={p.label} on={i === preset} onClick={() => applyPreset(i)} block>
-                <span>{p.label}</span>
-                <span className="text-[8px] opacity-70">{p.hint}</span>
-              </Choice>
+              // Elegida = contorno amarillo y fondo apenas teñido, no relleno:
+              // así el bloque no se convierte en una mancha amarilla.
+              <button
+                key={p.label}
+                type="button"
+                role="radio"
+                aria-checked={i === preset}
+                onClick={() => applyPreset(i)}
+                className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 text-left transition ${
+                  i === preset ? 'border-aldea-accent' : 'bg-aldea-card border-transparent'
+                }`}
+                style={i === preset ? { background: 'rgba(232,163,61,.1)' } : undefined}
+              >
+                <span
+                  className={`text-[13px] leading-none ${
+                    i === preset ? 'text-aldea-accent' : 'text-aldea-ink'
+                  }`}
+                >
+                  {p.label}
+                </span>
+                <span
+                  className={`text-[11px] leading-none ${
+                    i === preset ? 'text-aldea-accent-soft' : 'text-aldea-dim'
+                  }`}
+                >
+                  {p.hint}
+                </span>
+              </button>
             ))}
           </div>
         </Field>
 
         {!PRESETS[preset].cfg && (
-          <>
+          <div className="bg-aldea-card flex flex-col gap-3 rounded-lg p-3">
             <Field label="Puntos objetivo">
               <Options
                 value={cfg.targetPoints}
-                onChange={(v) => setCfg({ ...cfg, targetPoints: v })}
+                onChange={v => setCfg({ ...cfg, targetPoints: v })}
                 options={[20, 30, 40]}
               />
             </Field>
             <Field label="Límite de rondas">
               <Options
                 value={cfg.maxRounds}
-                onChange={(v) => setCfg({ ...cfg, maxRounds: v })}
+                onChange={v => setCfg({ ...cfg, maxRounds: v })}
                 options={[10, 15, 20]}
               />
             </Field>
             <Field label="Tiempo de decisión">
               <Options
                 value={cfg.timer}
-                onChange={(v) => setCfg({ ...cfg, timer: v })}
+                onChange={v => setCfg({ ...cfg, timer: v })}
                 options={[30, 45, 60]}
                 suffix="s"
               />
             </Field>
-          </>
+          </div>
         )}
 
         <Button
           full
           disabled={busy}
-          onClick={() => run(async () => onRoom((await createRoom(cfg)).id))}
+          onClick={() => alCrear(async () => onRoom((await createRoom(cfg)).id))}
         >
-          Crear
+          CREAR
         </Button>
-      </Panel>
 
-      {error && <p className="text-center text-red-400">{error}</p>}
+        {errorCrear && (
+          <p
+            className="border-aldea-danger text-aldea-warm flex items-center gap-2 rounded-lg border p-3 text-[12px] leading-snug"
+            style={{ background: 'rgba(192,73,46,.12)' }}
+          >
+            <span className="bg-aldea-warm inline-block h-2 w-2 shrink-0" />
+            {errorCrear}
+          </p>
+        )}
+      </div>
     </div>
   )
 }
 
-// Cabecera de la casa: avatar + nombre. El nombre ya no es un input suelto
-// (parecía roto: se veía editable pero estaba deshabilitado); es un rótulo y
+// Cabecera de la casa: avatar + nombre. El nombre es un rótulo, no un input:
 // se cambia entrando explícitamente en modo edición.
 function Bienvenida({ profile, onProfile }) {
   const [editando, setEditando] = useState(false)
@@ -193,95 +241,91 @@ function Bienvenida({ profile, onProfile }) {
     }
   }
 
-  if (editando) {
-    return (
-      <div className="flex flex-col gap-2">
-        {/* Un único input: acá el <label> sí corresponde */}
-        <Field as="label" label="Tu nombre">
-          <input
-            value={nick}
-            autoFocus
-            maxLength={16}
-            onChange={(e) => setNick(e.target.value.slice(0, 16))}
-            className="bg-aldea-bg w-full min-w-0 rounded px-2 py-2 outline-none"
-          />
-        </Field>
-        <div className="grid grid-cols-2 gap-2">
-          <Button disabled={busy || nick.trim().length < 2} onClick={guardar}>
-            Guardar
-          </Button>
-          <Button tone="ghost" disabled={busy} onClick={() => setEditando(false)}>
-            Cancelar
-          </Button>
-        </div>
-        {error && <p className="text-red-400">{error}</p>}
-      </div>
-    )
-  }
-
   return (
-    <div className="flex items-center gap-3">
-      <Avatar
-        avatar={profile.avatar}
-        nickname={profile.nickname}
-        onClick={() => setEligiendo(true)}
-        title="Cambiar avatar"
-      />
-      {eligiendo && (
-        <AvatarPicker
-          profile={profile}
-          onProfile={onProfile}
-          onClose={() => setEligiendo(false)}
+    <>
+      <div className="bg-aldea-panel border-aldea-line flex items-center gap-3 rounded-lg border p-3">
+        {/* 52 de caja con el retrato a 35: 5 px por celda del sprite de 7×7, que
+            es lo que lo mantiene nítido. Con medidas que no dan entero se ven
+            costuras entre los píxeles. */}
+        <Avatar
+          avatar={profile.avatar}
+          nickname={profile.nickname}
+          box={52}
+          size={35}
+          onClick={() => setEligiendo(true)}
+          title="Cambiar avatar"
         />
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="text-[8px] tracking-[0.25em] opacity-50">BIENVENIDO</p>
-        <p
-          title={profile.nickname}
-          className={`text-aldea-accent mt-1 truncate leading-loose ${
-            profile.nickname.length > 10 ? 'text-[11px]' : 'text-[13px]'
-          }`}
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="font-title text-aldea-muted text-[10px] tracking-[1.5px]">
+            BIENVENIDO
+          </span>
+          <span
+            className="font-title text-aldea-ink truncate leading-none font-bold"
+            style={{ fontSize: profile.nickname.length > 10 ? 14 : 16 }}
+          >
+            {profile.nickname}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={abrir}
+          title="Cambiar nombre"
+          aria-label="Cambiar nombre"
+          className="bg-aldea-card border-aldea-line hover:border-aldea-accent flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border"
         >
-          {profile.nickname}
-        </p>
+          <PixelIcon name="lapiz" size={13} />
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={abrir}
-        title="Cambiar nombre"
-        aria-label="Cambiar nombre"
-        className="bg-aldea-bg flex h-9 w-9 shrink-0 items-center justify-center rounded"
-      >
-        <PixelIcon name="lapiz" size={14} />
-      </button>
-    </div>
-  )
-}
 
-function Choice({ on, onClick, children, block }) {
-  return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={on}
-      onClick={onClick}
-      className={`rounded px-2 py-2 ${block ? 'flex flex-col gap-1 text-left' : 'px-3'} ${
-        on ? 'bg-aldea-accent text-aldea-bg' : 'bg-aldea-bg'
-      }`}
-    >
-      {children}
-    </button>
+      {editando && (
+        <div
+          className="bg-aldea-panel flex flex-col gap-2.5 rounded-lg border border-dashed p-3"
+          style={{ borderColor: '#8a6224' }}
+        >
+          {/* Un único input: acá el <label> sí corresponde */}
+          <h2 className="font-title text-aldea-muted text-[11px] tracking-wide">
+            TU NOMBRE
+          </h2>
+            <Input
+              value={nick}
+              autoFocus
+              maxLength={16}
+              error={!!error}
+              placeholder="2-16 caracteres"
+              onChange={e => setNick(e.target.value.slice(0, 16))}
+            />
+          <div className="grid grid-cols-2 gap-2">
+            <Button tone="plano" disabled={busy || nick.trim().length < 2} onClick={guardar}>
+              Guardar
+            </Button>
+            <Button tone="cancelar" disabled={busy} onClick={() => setEditando(false)}>
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {eligiendo && (
+        <AvatarPicker profile={profile} onProfile={onProfile} onClose={() => setEligiendo(false)} />
+      )}
+    </>
   )
 }
 
 function Options({ value, onChange, options, suffix = '' }) {
   return (
-    <div role="radiogroup" className="flex flex-wrap gap-1">
-      {options.map((o) => (
-        <Choice key={o} on={o === value} onClick={() => onChange(o)}>
+    <div role="radiogroup" className="flex gap-1.5">
+      {options.map(o => (
+        <Chip
+          key={o}
+          on={o === value}
+          onClick={() => onChange(o)}
+          apagado="bg-aldea-panel"
+          className="!text-[12px]"
+        >
           {o}
           {suffix}
-        </Choice>
+        </Chip>
       ))}
     </div>
   )

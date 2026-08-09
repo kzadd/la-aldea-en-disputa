@@ -1,4 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
+import { Market, effectiveCost } from "../components/game/Market.jsx";
+import { MyBuildings } from "../components/game/MyBuildings.jsx";
+import { PlayersStrip } from "../components/game/PlayersStrip.jsx";
+import { ResourceBar } from "../components/game/ResourceBar.jsx";
+import { RevealOverlay } from "../components/game/RevealOverlay.jsx";
+import { RoundTimer } from "../components/game/RoundTimer.jsx";
+import { SabotagePanel } from "../components/game/SabotagePanel.jsx";
+import { SpyReport } from "../components/game/SpyReport.jsx";
+import { PixelIcon } from "../components/PixelIcon.jsx";
+import { Button } from "../components/ui.jsx";
+import { RESOURCES, RES_ICON, RES_LABEL, SABOTAGES } from "../data/art.js";
+import { useGame } from "../hooks/useGame.js";
 import {
   amITargeted,
   cancelAction,
@@ -8,178 +20,196 @@ import {
   setComebackPreference,
   spy,
   submitAction,
-} from '../lib/api.js'
-import { useGame } from '../hooks/useGame.js'
-import { ResourceBar } from '../components/game/ResourceBar.jsx'
-import { RoundTimer } from '../components/game/RoundTimer.jsx'
-import { Market, effectiveCost } from '../components/game/Market.jsx'
-import { PlayersStrip } from '../components/game/PlayersStrip.jsx'
-import { SabotagePanel } from '../components/game/SabotagePanel.jsx'
-import { RevealOverlay } from '../components/game/RevealOverlay.jsx'
-import { SpyReport } from '../components/game/SpyReport.jsx'
-import { Button } from '../components/ui.jsx'
-import { PixelIcon } from '../components/PixelIcon.jsx'
-import { RESOURCES, RES_ICON, RES_LABEL, SABOTAGES } from '../data/art.js'
-import CharacterModal from '../components/CharacterModal.jsx'
+} from "../lib/api.js";
 
 export default function Game({ gameId, userId, catalogs, onFinished }) {
-  const { game, room, players, market, buildings, events, confirmed, cooldowns, me, loading } =
-    useGame(gameId, userId)
-  const [slot, setSlot] = useState(null)
-  const [sabotage, setSabotage] = useState(null)
-  const [target, setTarget] = useState(null)
-  const [error, setError] = useState(null)
-  const [busy, setBusy] = useState(false)
-  const [spyReport, setSpyReport] = useState(null)
-  const [spying, setSpying] = useState(false)
-  const [targeted, setTargeted] = useState(false)
-  const [mission, setMission] = useState(null)
-  const [showMission, setShowMission] = useState(false)
-  const [showPref, setShowPref] = useState(false)
-  const [inspect, setInspect] = useState(null)
-  const [confirmarFin, setConfirmarFin] = useState(false)
+  const {
+    game,
+    room,
+    players,
+    market,
+    buildings,
+    events,
+    confirmed,
+    cooldowns,
+    me,
+    loading,
+    reload,
+  } = useGame(gameId, userId);
+  const [slot, setSlot] = useState(null);
+  const [sabotage, setSabotage] = useState(null);
+  const [target, setTarget] = useState(null);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [spyReport, setSpyReport] = useState(null);
+  const [spying, setSpying] = useState(false);
+  const [targeted, setTargeted] = useState(false);
+  const [mission, setMission] = useState(null);
+  const [showMission, setShowMission] = useState(false);
+  const [showPref, setShowPref] = useState(false);
+  const [confirmarFin, setConfirmarFin] = useState(false);
 
-  const round = game?.current_round
-  const phase = game?.round_phase
+  const round = game?.current_round;
+  const phase = game?.round_phase;
 
   useEffect(() => {
-    setSlot(null)
-    setSabotage(null)
-    setTarget(null)
-    setError(null)
-    setSpyReport(null)
-    setTargeted(false)
-  }, [round])
+    setSlot(null);
+    setSabotage(null);
+    setTarget(null);
+    setError(null);
+    setSpyReport(null);
+    setTargeted(false);
+  }, [round]);
 
   useEffect(() => {
     // 'cancelled' también termina la partida: el host la cortó
-    if (game && game.status !== 'playing' && game.status !== 'assigning') onFinished()
-  }, [game?.status, game, onFinished])
+    if (game && game.status !== "playing" && game.status !== "assigning")
+      onFinished();
+  }, [game?.status, game, onFinished]);
 
   // Idempotente: cubre a quien recarga y se salta el sorteo. El reloj de la
   // ronda 1 no arranca de verdad hasta que entraron todos.
   useEffect(() => {
-    if (gameId) enterGame(gameId).catch(() => {})
-  }, [gameId])
+    if (gameId) enterGame(gameId).catch(() => {});
+  }, [gameId]);
 
   // Tu misión secreta, a mano durante toda la partida (§8)
   useEffect(() => {
-    if (gameId) getMyMission(gameId).then((m) => setMission(m?.[0] ?? null)).catch(() => {})
-  }, [gameId])
+    if (gameId)
+      getMyMission(gameId)
+        .then((m) => setMission(m?.[0] ?? null))
+        .catch(() => {});
+  }, [gameId]);
 
   // Torre de Vigilancia: sondea durante la decisión (GAME_DESIGN §4.2).
   // Sin Torre el servidor siempre devuelve false, así que no filtra nada.
   useEffect(() => {
-    if (!gameId || phase !== 'decision') return
-    const check = () => amITargeted(gameId).then(setTargeted).catch(() => {})
-    check()
-    const id = setInterval(check, 4000)
-    return () => clearInterval(id)
-  }, [gameId, phase, round])
+    if (!gameId || phase !== "decision") return;
+    const check = () =>
+      amITargeted(gameId)
+        .then(setTargeted)
+        .catch(() => {});
+    check();
+    const id = setInterval(check, 4000);
+    return () => clearInterval(id);
+  }, [gameId, phase, round]);
 
-  if (loading || !game || !me) return <p className="p-4">Cargando partida…</p>
+  if (loading || !game || !me) return <p className="p-4">Cargando partida…</p>;
 
-  const isDecision = phase === 'decision'
-  const iConfirmed = confirmed.includes(userId)
-  const inspectado = players.find((p) => p.user_id === inspect)
-  const isHost = room?.host_id === userId
+  const isDecision = phase === "decision";
+  const iConfirmed = confirmed.includes(userId);
+  // Con la decisión enviada no se toca nada más: seguir eligiendo cartas o
+  // sabotajes que ya no viajan a ningún lado solo genera clics perdidos. Se
+  // vuelve a abrir con "Cambiar decisión".
+  const editable = isDecision && !iConfirmed;
+  const isHost = room?.host_id === userId;
 
   // Mientras alguien sigue en el sorteo el reloj todavía no cuenta de verdad:
   // el servidor lo reinicia entero cuando entra el último (RPC enter_game).
-  const faltanEntrar = players.filter((p) => !p.entered_at).length
-  const esperandoEntradas = round === 1 && faltanEntrar > 0
-  const limit = catalogs.characters[me.character_key]?.storage_limit ?? 10
+  const faltanEntrar = players.filter((p) => !p.entered_at).length;
+  const esperandoEntradas = round === 1 && faltanEntrar > 0;
+  const limit = catalogs.characters[me.character_key]?.storage_limit ?? 10;
 
-  const spend = { wood: 0, stone: 0, gold: 0, food: 0 }
+  // La carta marcada: le da nombre al botón de confirmar ("Construir Cantera")
+  const elegida =
+    slot === null
+      ? null
+      : catalogs.buildings[market.find((m) => m.slot === slot)?.building_key];
+
+  const spend = { wood: 0, stone: 0, gold: 0, food: 0 };
   if (slot !== null) {
-    const b = catalogs.buildings[market.find((m) => m.slot === slot)?.building_key]
+    const b =
+      catalogs.buildings[market.find((m) => m.slot === slot)?.building_key];
     if (b) {
-      const c = effectiveCost(b, me.character_key)
-      RESOURCES.forEach((r) => (spend[r.key] += c[r.key]))
+      const c = effectiveCost(b, me.character_key);
+      RESOURCES.forEach((r) => (spend[r.key] += c[r.key]));
     }
   }
-  if (sabotage && sabotage.type !== 'spy') {
-    const cost = SABOTAGES.find((s) => s.type === sabotage.type).cost
-    Object.entries(cost).forEach(([k, v]) => (spend[k] += v))
+  if (sabotage && sabotage.type !== "spy") {
+    const cost = SABOTAGES.find((s) => s.type === sabotage.type).cost;
+    Object.entries(cost).forEach(([k, v]) => (spend[k] += v));
   }
 
   // Viento a favor de esta ronda (§9.1): quién lo cobró, según el servidor
-  const comebackEvents = events.filter((e) => e.type === 'comeback')
-  const comeback = comebackEvents.map((e) => e.target_id)
-  const myComeback = comebackEvents.find((e) => e.target_id === userId)
+  const comebackEvents = events.filter((e) => e.type === "comeback");
+  const comeback = comebackEvents.map((e) => e.target_id);
+  const myComeback = comebackEvents.find((e) => e.target_id === userId);
 
+  // Guardar la preferencia no dispara realtime (es una columna propia), así que
+  // hay que releer: si no, el recurso marcado seguía siendo el viejo hasta
+  // recargar la página.
   const savePref = async (r) => {
-    setShowPref(false)
     try {
-      await setComebackPreference(gameId, r)
+      await setComebackPreference(gameId, r);
+      await reload();
     } catch (e) {
-      setError(e.message)
+      setError(e.message);
     }
-  }
+  };
 
-  const canPay = RESOURCES.every((r) => me[r.key] >= spend[r.key])
-  const targetBuildings = buildings.filter((b) => b.user_id === target)
+  const canPay = RESOURCES.every((r) => me[r.key] >= spend[r.key]);
+  const targetBuildings = buildings.filter((b) => b.user_id === target);
   const sabotageReady =
     !sabotage ||
-    sabotage.type === 'spy' ||
-    (target &&
-      (sabotage.type !== 'damage' || sabotage.params?.building_id))
-  const blocked = me.blocked_next_round && me.character_key !== 'nomada'
+    sabotage.type === "spy" ||
+    (target && (sabotage.type !== "damage" || sabotage.params?.building_id));
+  const blocked = me.blocked_next_round && me.character_key !== "nomada";
 
   const confirm = async () => {
-    setBusy(true)
-    setError(null)
+    setBusy(true);
+    setError(null);
     try {
       await submitAction(gameId, {
         buildSlot: slot,
         sabotage:
-          sabotage && sabotage.type !== 'spy' ? { ...sabotage, target } : null,
-      })
+          sabotage && sabotage.type !== "spy" ? { ...sabotage, target } : null,
+      });
     } catch (e) {
-      setError(e.message)
+      setError(e.message);
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }
+  };
 
   const deshacer = async () => {
-    setBusy(true)
-    setError(null)
+    setBusy(true);
+    setError(null);
     try {
-      await cancelAction(gameId)
+      await cancelAction(gameId);
     } catch (e) {
-      setError(e.message)
+      setError(e.message);
     } finally {
-      setBusy(false)
+      setBusy(false);
     }
-  }
+  };
 
   const doSpy = async (t) => {
-    setSpying(true)
-    setError(null)
+    setSpying(true);
+    setError(null);
     try {
-      setSpyReport({ report: await spy(gameId, t), target: t })
-      setSabotage(null)
+      setSpyReport({ report: await spy(gameId, t), target: t });
+      setSabotage(null);
     } catch (e) {
-      setError(e.message)
+      setError(e.message);
     } finally {
-      setSpying(false)
+      setSpying(false);
     }
-  }
+  };
 
-  const nameOf = (id) => players.find((p) => p.user_id === id)?.profiles?.nickname
+  const nameOf = (id) =>
+    players.find((p) => p.user_id === id)?.profiles?.nickname;
 
   return (
-    <div className="relative flex h-full flex-col gap-2">
+    <div className="relative flex min-h-full flex-col gap-2.5">
       <ResourceBar
         me={me}
         limit={limit}
         round={round}
-        maxRounds={room?.max_rounds ?? '?'}
+        maxRounds={room?.max_rounds ?? "?"}
         timer={
           esperandoEntradas ? (
-            <span className="bg-aldea-bg flex items-center gap-1 rounded px-2 py-1">
-              <PixelIcon name="reloj" size={10} />
+            <span className="bg-aldea-panel border-aldea-line flex items-center gap-1.5 rounded-lg border px-2.5 py-2 text-[11px]">
+              <PixelIcon name="reloj" size={11} />
               esperando {faltanEntrar}
             </span>
           ) : (
@@ -194,38 +224,22 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
         confirmed={confirmed}
         userId={userId}
         targetId={target}
-        onInspect={setInspect}
+        characters={catalogs.characters}
         comeback={comeback}
+        round={round}
       />
 
-      {inspectado && (
-        <CharacterModal
-          character={catalogs.characters[inspectado.character_key]}
-          jugador={{
-            nickname:
-              inspectado.user_id === userId ? 'Tú' : (inspectado.profiles?.nickname ?? '—'),
-            avatar: inspectado.profiles?.avatar,
-          }}
-          extra={
-            <>
-              <li className="flex items-center gap-2">
-                <PixelIcon name="trofeo" size={12} />
-                {inspectado.points} puntos
-              </li>
-              <li className="flex items-center gap-2">
-                <PixelIcon name="casa" size={12} />
-                {buildings.filter((b) => b.user_id === inspectado.user_id).length} construcciones
-              </li>
-            </>
-          }
-          onClose={() => setInspect(null)}
-        />
-      )}
-
+      {/* Misma mecánica que la misión secreta: toda la barra es el botón y lo
+          que elige el recurso se despliega debajo. */}
       {myComeback && (
-        <div className="bg-aldea-panel animate-pop flex items-center gap-2 rounded p-2">
-          <PixelIcon name="hoja" size={14} />
-          <span className="flex flex-1 items-center gap-1 leading-relaxed">
+        <button
+          type="button"
+          onClick={() => setShowPref((v) => !v)}
+          className="border-aldea-line hover:border-aldea-accent-dark animate-pop flex items-center gap-2.5 rounded-md border p-3 text-left text-[12px]"
+          style={{ background: "#241a13" }}
+        >
+          <PixelIcon name="viento" size={15} />
+          <span className="flex flex-1 items-center gap-1.5">
             Viento a favor: +1
             <PixelIcon
               name={RES_ICON[myComeback.payload.resource]}
@@ -234,115 +248,179 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
             />
             por ir último
           </span>
-          <button
-            type="button"
-            onClick={() => setShowPref((v) => !v)}
-            className="bg-aldea-bg flex items-center gap-1 rounded px-2 py-1"
-          >
-            {showPref ? 'cerrar' : 'elegir'}
-            <PixelIcon name={showPref ? 'flecha_arriba' : 'flecha_abajo'} size={10} />
-          </button>
-        </div>
+          <PixelIcon
+            name={showPref ? "flecha_arriba" : "flecha_abajo"}
+            size={10}
+          />
+        </button>
       )}
 
       {showPref && (
-        <div className="bg-aldea-panel flex flex-col gap-2 rounded p-2">
-          <p className="opacity-60">Qué recurso prefieres mientras vayas último</p>
+        <div className="bg-aldea-panel border-aldea-line flex flex-col gap-2 rounded-lg border p-3">
+          <p className="text-aldea-muted text-[12px]">
+            Qué recurso preferís mientras vayas último
+          </p>
+          {/* Cada opción dice su nombre: el globo del navegador tarda un
+              segundo, no existe en móvil y no se parece en nada al resto. */}
           <div className="grid grid-cols-5 gap-1">
-            {RESOURCES.map((r) => (
-              <button
-                key={r.key}
-                type="button"
-                title={r.label}
-                onClick={() => savePref(r.key)}
-                className={`flex items-center justify-center rounded py-2 ${
-                  me.comeback_preference === r.key ? 'bg-aldea-accent text-aldea-bg' : 'bg-aldea-bg'
-                }`}
-              >
-                <PixelIcon name={r.icon} size={14} />
-              </button>
-            ))}
+            {RESOURCES.map((r) => {
+              const on = me.comeback_preference === r.key
+              return (
+                <button
+                  key={r.key}
+                  type="button"
+                  onClick={() => savePref(r.key)}
+                  className={`flex flex-col items-center gap-1.5 rounded-md border py-2 text-[10px] leading-none transition ${
+                    on
+                      ? "border-aldea-accent text-aldea-accent"
+                      : "border-aldea-line text-aldea-dim hover:border-aldea-accent-dark hover:text-aldea-ink"
+                  }`}
+                  style={{ background: on ? "rgba(232,163,61,.1)" : "#17110d" }}
+                >
+                  <PixelIcon name={r.icon} size={16} />
+                  {r.label}
+                </button>
+              )
+            })}
             <button
               type="button"
               onClick={() => savePref(null)}
-              className={`rounded py-2 text-[8px] ${
-                me.comeback_preference ? 'bg-aldea-bg' : 'bg-aldea-accent text-aldea-bg'
+              className={`flex flex-col items-center justify-center gap-1.5 rounded-md border py-2 text-[10px] leading-none transition ${
+                me.comeback_preference
+                  ? "border-aldea-line text-aldea-dim hover:border-aldea-accent-dark hover:text-aldea-ink"
+                  : "border-aldea-accent text-aldea-accent"
               }`}
-              title="El que menos tengas"
+              style={{
+                background: me.comeback_preference ? "#17110d" : "rgba(232,163,61,.1)",
+              }}
             >
+              <PixelIcon name="interrogante" size={16} />
               auto
             </button>
           </div>
         </div>
       )}
 
+      {/* La cabecera no se va al abrir: se despliega una tarjeta debajo, así
+          siempre se ve de qué se trata lo que quedó abierto. */}
       {mission && (
-        <button
-          onClick={() => setShowMission((v) => !v)}
-          className="bg-aldea-panel flex items-start gap-2 rounded p-2 text-left leading-relaxed"
-        >
-          <PixelIcon name="secreto" size={12} className="mt-[2px]" />
-          <span className="min-w-0 flex-1">
-            {showMission ? mission.description : 'Tu misión secreta'}
-          </span>
-          <PixelIcon
-            name={showMission ? 'flecha_arriba' : 'flecha_abajo'}
-            size={10}
-            className="mt-[2px]"
-          />
-        </button>
+        <>
+          <button
+            onClick={() => setShowMission((v) => !v)}
+            className="border-aldea-line hover:border-aldea-accent-dark flex items-center gap-2.5 rounded-md border p-3 text-left"
+            style={{ background: "#241a13" }}
+          >
+            <PixelIcon name="bloqueo" size={15} />
+            <span className="font-title text-aldea-ink flex-1 text-[12px] font-bold">
+              TU MISIÓN SECRETA
+            </span>
+            <PixelIcon
+              name={showMission ? "flecha_arriba" : "flecha_abajo"}
+              size={10}
+            />
+          </button>
+
+          {showMission && (
+            <div
+              className="flex flex-col gap-[7px] rounded-md border p-[13px]"
+              style={{ background: "#1d150f", borderColor: "#8a6224" }}
+            >
+              <p className="font-title text-aldea-accent-soft text-[13px] font-bold">
+                {mission.name}
+              </p>
+              <p className="text-[12px] leading-[1.6]">{mission.description}</p>
+              <p className="text-aldea-dim text-[11px]">
+                +{mission.points} puntos · nadie más la ve
+              </p>
+            </div>
+          )}
+        </>
       )}
 
-      <div className="flex-1 overflow-y-auto">
+      <MyBuildings
+        mias={buildings.filter((b) => b.user_id === userId)}
+        catalogo={catalogs.buildings}
+        round={round}
+      />
+
+      {/* Los avisos van a plena luz: son lo que explica por qué el mercado
+          está apagado, así que atenuarlos era esconder el motivo. */}
+      <div className="flex-1">
         {targeted && (
-          <p className="mb-2 rounded bg-amber-900 p-2 text-center leading-relaxed">
-            <PixelIcon name="torre" size={12} /> Tu Torre detecta que alguien te está apuntando
+          <p
+            className="border-aldea-accent-dark text-aldea-accent-soft mb-2 flex items-center justify-center gap-2 rounded-lg border p-2.5 text-center text-[12px] leading-relaxed"
+            style={{ background: "rgba(232,163,61,.1)" }}
+          >
+            <PixelIcon name="torre" size={13} /> Alguien te está apuntando
           </p>
         )}
         {blocked && (
-          <p className="mb-2 rounded bg-red-900 p-2 text-center">
-            <PixelIcon name="bloqueo" size={12} /> Bloqueado: esta ronda no puedes construir
+          <p
+            className="border-aldea-danger text-aldea-warm mb-2 flex items-center justify-center gap-2 rounded-lg border p-2.5 text-center text-[12px]"
+            style={{ background: "rgba(192,73,46,.12)" }}
+          >
+            <PixelIcon name="bloqueo" size={13} /> Bloqueado: esta ronda no
+            podés construir
           </p>
         )}
-        <Market
-          market={market}
-          buildings={catalogs.buildings}
+        {/* Con la decisión enviada, o bloqueado, el mercado se atenúa: además
+            de no responder, tiene que verse que no responde. */}
+        <div className={`transition-opacity ${editable && !blocked ? '' : 'opacity-45'}`}>
+          <Market
+            market={market}
+            buildings={catalogs.buildings}
+            me={me}
+            selected={slot}
+            onSelect={setSlot}
+            disabled={!editable || blocked}
+          />
+        </div>
+      </div>
+
+      <div
+        className={`flex flex-col transition-opacity ${editable ? "" : "opacity-45"}`}
+      >
+        <SabotagePanel
+          sabotage={sabotage}
+          onChange={setSabotage}
+          disabled={!editable}
           me={me}
-          selected={slot}
-          onSelect={setSlot}
-          disabled={!isDecision || blocked}
+          round={round}
+          cooldowns={cooldowns}
+          players={players}
+          characters={catalogs.characters}
+          userId={userId}
+          target={target}
+          onTarget={setTarget}
+          targetName={nameOf(target)}
+          targetBuildings={targetBuildings}
+          buildings={catalogs.buildings}
+          onSpy={doSpy}
+          spying={spying}
         />
       </div>
 
-      <SabotagePanel
-        sabotage={sabotage}
-        onChange={setSabotage}
-        disabled={!isDecision}
-        me={me}
-        round={round}
-        cooldowns={cooldowns}
-        players={players}
-        userId={userId}
-        target={target}
-        onTarget={setTarget}
-        targetName={nameOf(target)}
-        targetBuildings={targetBuildings}
-        buildings={catalogs.buildings}
-        onSpy={doSpy}
-        spying={spying}
-      />
-
-      {error && <p className="text-center text-red-400">{error}</p>}
+      {error && (
+        <p className="text-aldea-warm text-center text-[12px]">{error}</p>
+      )}
 
       {/* Confirmado no es definitivo: se puede deshacer mientras la ronda siga
           abierta. Antes el botón volvía a enviar lo mismo y parecía trabado. */}
       {iConfirmed ? (
-        <div className="flex flex-col gap-2">
-          <p className="flex items-center justify-center gap-2 opacity-70">
+        <div className="flex flex-col gap-2.5">
+          <p
+            className="flex items-center justify-center gap-2 text-[12px]"
+            style={{ color: "#8fc178" }}
+          >
             <PixelIcon name="check" size={12} />
             Decisión enviada · esperando a los demás
           </p>
-          <Button full tone="ghost" disabled={!isDecision || busy} onClick={deshacer}>
+          <Button
+            full
+            tone="ghost"
+            disabled={!isDecision || busy}
+            onClick={deshacer}
+          >
             Cambiar decisión
           </Button>
         </div>
@@ -353,10 +431,12 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
           onClick={confirm}
         >
           {!isDecision
-            ? 'Resolviendo…'
+            ? "Resolviendo…"
             : slot === null && !sabotage
-              ? 'Guardar recursos'
-              : 'Confirmar decisión'}
+              ? "Guardar recursos"
+              : elegida
+                ? `Construir ${elegida.name}`
+                : "Confirmar decisión"}
         </Button>
       )}
 
@@ -365,23 +445,25 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
         <button
           type="button"
           disabled={busy}
-          className={`self-center rounded px-3 py-1 text-[8px] ${
-            confirmarFin ? 'bg-red-900' : 'bg-aldea-panel opacity-70'
+          className={`self-center rounded-lg border px-4 py-2 text-[12px] ${
+            confirmarFin
+              ? "border-aldea-danger text-aldea-warm"
+              : "border-aldea-line text-aldea-dim hover:border-aldea-danger hover:text-aldea-warm"
           }`}
           onClick={async () => {
-            if (!confirmarFin) return setConfirmarFin(true)
-            setBusy(true)
+            if (!confirmarFin) return setConfirmarFin(true);
+            setBusy(true);
             try {
-              await cancelGame(gameId)
+              await cancelGame(gameId);
             } catch (e) {
-              setError(e.message)
+              setError(e.message);
             } finally {
-              setBusy(false)
-              setConfirmarFin(false)
+              setBusy(false);
+              setConfirmarFin(false);
             }
           }}
         >
-          {confirmarFin ? 'Sí, cancelar (no puntúa)' : 'Cancelar partida'}
+          {confirmarFin ? "Sí, cancelar (no puntúa)" : "Cancelar partida"}
         </button>
       )}
 
@@ -394,7 +476,7 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
         />
       )}
 
-      {phase === 'reveal' && (
+      {phase === "reveal" && (
         <RevealOverlay
           events={events}
           players={players}
@@ -405,5 +487,5 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
         />
       )}
     </div>
-  )
+  );
 }

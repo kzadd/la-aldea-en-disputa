@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
-import { leaveRoom, setReady, startGame } from '../lib/api.js'
-import { useRoom } from '../hooks/useRoom.js'
-import { Button, Panel } from '../components/ui.jsx'
-import { Leaderboard } from '../components/Leaderboard.jsx'
 import { PixelIcon } from '../components/PixelIcon.jsx'
-import { Avatar } from '../components/Avatar.jsx'
+import { Button } from '../components/ui.jsx'
+import { useRoom } from '../hooks/useRoom.js'
+import { tinte } from '../data/colores.js'
+import { leaveRoom, setReady, startGame } from '../lib/api.js'
 
-export default function Lobby({ roomId, userId, characters, onGame, onLeave }) {
+export default function Lobby({ roomId, userId, onGame, onLeave }) {
   const { room, players, gameId, reload } = useRoom(roomId)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
@@ -25,95 +24,171 @@ export default function Lobby({ roomId, userId, characters, onGame, onLeave }) {
     if (gameId) onGame(gameId)
   }, [gameId, onGame])
 
-  if (!room) return <p className="p-4">Cargando sala…</p>
+  if (!room) return <p className="text-aldea-muted p-4">Cargando sala…</p>
 
   const isHost = room.host_id === userId
-  const yaListo = !!players.find((p) => p.user_id === userId)?.ready
-  const listos = players.filter((p) => p.ready).length
+  const yaListo = !!players.find(p => p.user_id === userId)?.ready
+  const listos = players.filter(p => p.ready).length
   const todosListos = players.length >= 2 && listos === players.length
   const faltanJugadores = players.length < room.max_players
+  const puedeArrancar = todosListos
+  const libres = room.max_players - players.length
+
+  const marcarListo = async () => {
+    setBusy(true)
+    setError(null)
+    try {
+      await setReady(roomId, !yaListo)
+      await reload()
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setBusy(false)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
-      <Panel className="items-center text-center">
-        <p className="opacity-60">Código de sala</p>
-        <p className="text-aldea-accent text-2xl tracking-[0.3em]">{room.code}</p>
+      <div className="bg-aldea-panel border-aldea-line flex flex-col items-center gap-3 rounded-lg border px-4 py-4 text-center">
+        <span className="font-title text-aldea-muted text-[10px] tracking-[2px]">
+          CÓDIGO DE SALA
+        </span>
+        <span
+          className="font-title text-aldea-accent text-[28px] leading-none tracking-[6px] font-bold"
+          style={{ textShadow: '0 3px 0 #3d2c1d' }}
+        >
+          {room.code}
+        </span>
         <div className="grid w-full grid-cols-2 gap-2">
-          <Button tone="ghost" onClick={copiar}>
-            <PixelIcon name="copiar" size={14} />
-            {copiado ? '¡Copiado!' : 'Copiar'}
+          {/* Los dos van de contorno, como en el diseño. Copiado no se rellena
+              de amarillo: solo se enciende el borde y el texto. */}
+          <Button
+            tone="ghost"
+            onClick={copiar}
+            className={`!py-3 !text-[12px] ${
+              copiado ? '!border-aldea-accent !text-aldea-accent' : ''
+            }`}
+          >
+            {copiado ? 'Copiado' : 'Copiar'}
           </Button>
-          <Button tone="ghost" onClick={() => compartirWhatsApp(room.code)}>
-            <PixelIcon name="whatsapp" size={14} />
+          <Button
+            tone="ghost"
+            onClick={() => compartirWhatsApp(room.code)}
+            className="!py-3 !text-[12px]"
+          >
             WhatsApp
           </Button>
         </div>
-      </Panel>
+      </div>
 
-      <Panel title={`Jugadores (${players.length}/${room.max_players})`}>
-        <ul className="flex flex-col gap-2">
-          {players.map((p) => (
-            <li key={p.user_id} className="bg-aldea-bg flex items-center gap-2 rounded p-2">
-              {/* Cuadrado, no círculo: en pixel art un círculo de 8px es una mancha */}
+      <div className="bg-aldea-panel border-aldea-line flex flex-col gap-3 rounded-lg border p-4">
+        <div className="flex items-baseline justify-between">
+          <h2 className="font-title text-aldea-muted text-[11px] tracking-wide">JUGADORES</h2>
+          <span className="text-aldea-accent text-[12px]">
+            {players.length}/{room.max_players}
+          </span>
+        </div>
+
+        {/* Barra de asientos: se llena a medida que entra gente */}
+        <div className="bg-aldea-card h-[5px] overflow-hidden rounded-full">
+          <div
+            className="bg-aldea-accent h-full transition-[width] duration-300"
+            style={{ width: `${Math.round((100 * players.length) / room.max_players)}%` }}
+          />
+        </div>
+
+        <ul className="flex flex-col gap-3">
+          {players.map((p, i) => (
+            <li
+              key={p.user_id}
+              className="bg-aldea-card flex items-center gap-3 rounded-md border p-3"
+              style={{ borderColor: tinte(i) }}
+            >
+              {/* 28 = 4 px por celda, el tamaño que el diseño usa cuando el
+                  retrato es el protagonista de la fila */}
               <span
-                title={p.ready ? 'Listo' : 'Todavía no está listo'}
-                className="h-[10px] w-[10px] shrink-0"
-                style={{ background: p.ready ? '#7ab84a' : '#c0483a' }}
-              />
-              <Avatar
-                avatar={p.profiles?.avatar}
-                nickname={p.profiles?.nickname ?? ''}
-                size={14}
-                frame={false}
-              />
-              <span className="min-w-0 flex-1 truncate">{p.profiles?.nickname ?? '—'}</span>
-              {p.user_id === room.host_id && <span className="opacity-60">host</span>}
+                className="bg-aldea-panel flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[5px] border-2"
+                style={{ borderColor: tinte(i) }}
+              >
+                <PixelIcon name={p.profiles?.avatar || 'aldeano'} size={28} />
+              </span>
+              <span className="text-aldea-ink min-w-0 flex-1 truncate text-[12px]">
+                {p.profiles?.nickname ?? '—'}
+              </span>
+              {p.user_id === room.host_id && (
+                <span className="text-aldea-dim text-[11px]">host</span>
+              )}
+              {/* El estado es una píldora, no texto suelto: así se lee de un
+                  vistazo quién falta cuando la sala está llena */}
+              <span
+                className="flex shrink-0 items-center gap-1.5 rounded-[5px] px-2 py-1.5 text-[11px]"
+                style={{
+                  background: p.ready ? 'rgba(127,176,105,.14)' : '#241a13',
+                  color: p.ready ? '#8fc178' : '#9d8b74',
+                }}
+              >
+                {/* Cuadrado, no círculo: en pixel art un círculo de 8px es una mancha */}
+                <span
+                  className="h-2 w-2"
+                  style={{ background: p.ready ? '#7fb069' : '#5a4c3e' }}
+                  title={p.ready ? 'Listo' : 'Todavía no está listo'}
+                />
+                {p.ready ? 'listo' : 'sin confirmar'}
+              </span>
             </li>
           ))}
+
+          {libres > 0 &&
+            Array.from({ length: libres }).map((_, i) => (
+              <li
+                key={`libre-${i}`}
+                className="border-aldea-line flex items-center gap-3 rounded-md border border-dashed p-3 text-[12px]"
+                style={{ color: '#b3a189' }}
+              >
+                <span className="h-[9px] w-[9px] shrink-0" style={{ background: '#3d2c1d' }} />
+                Esperando jugador {players.length + i + 1}…
+              </li>
+            ))}
         </ul>
 
         <Button
           full
-          tone={yaListo ? 'ghost' : 'accent'}
+          tone={yaListo ? 'listo' : 'accent'}
           disabled={busy}
-          onClick={async () => {
-            setBusy(true)
-            setError(null)
-            try {
-              await setReady(roomId, !yaListo)
-              await reload()
-            } catch (e) {
-              setError(e.message)
-            } finally {
-              setBusy(false)
-            }
-          }}
+          onClick={marcarListo}
         >
-          <PixelIcon name={yaListo ? 'check' : 'reloj'} size={12} />
-          {yaListo ? 'Ya no estoy listo' : 'Estoy listo'}
+          {yaListo ? 'YA NO ESTOY LISTO' : 'ESTOY LISTO'}
         </Button>
-      </Panel>
+      </div>
 
-      {/* Se muestra mientras se llena la sala (GAME_DESIGN §10.2) */}
-      <Leaderboard userId={userId} characters={characters} title="Mientras esperan…" />
+      <div className="bg-aldea-panel border-aldea-line flex flex-col gap-2.5 rounded-lg border p-4">
+        <h2 className="font-title text-aldea-muted text-[11px] tracking-wide">CONFIGURACIÓN</h2>
+        <div className="flex gap-1.5">
+          <Dato value={room.target_points} label="puntos" />
+          <Dato value={room.max_rounds} label="rondas" />
+          <Dato value={`${room.decision_timer_seconds}s`} label="decisión" />
+        </div>
+      </div>
 
-      <Panel title="Configuración">
-        <ul className="flex flex-col gap-1 opacity-70">
-          <li>Meta: {room.target_points} puntos</li>
-          <li>Máximo: {room.max_rounds} rondas</li>
-          <li>Decisión: {room.decision_timer_seconds}s por ronda</li>
-        </ul>
-      </Panel>
 
-      {error && <p className="text-center text-red-400">{error}</p>}
+      {error && <p className="text-aldea-warm text-center text-[12px]">{error}</p>}
 
       {isHost ? (
         // La sala a medio llenar se puede arrancar igual, pero avisando: empezar
         // sin querer con la mitad de la gente es lo que pasaba antes.
         <Button
           full
-          tone={faltanJugadores && confirmarArranque ? 'danger' : 'accent'}
-          disabled={busy || !todosListos}
+          // Mientras no se pueda arrancar va apagado, como en el diseño: un
+          // amarillo al 40% parecía un botón roto.
+          tone={
+            !puedeArrancar
+              ? 'inactivo'
+              : faltanJugadores && confirmarArranque
+                ? 'danger'
+                : 'accent'
+          }
+          className={puedeArrancar ? '' : 'disabled:!opacity-100'}
+          disabled={busy || !puedeArrancar}
           onClick={async () => {
             if (faltanJugadores && !confirmarArranque) return setConfirmarArranque(true)
             setBusy(true)
@@ -130,29 +205,38 @@ export default function Lobby({ roomId, userId, characters, onGame, onLeave }) {
           {players.length < 2
             ? 'Faltan jugadores'
             : !todosListos
-              ? `Iniciar partida (${listos}/${players.length} listos)`
+              ? `Faltan confirmaciones (${listos}/${players.length})`
               : faltanJugadores
                 ? confirmarArranque
                   ? `Sí, empezar con ${players.length} de ${room.max_players}`
                   : `Empezar sin llenar la sala (${players.length}/${room.max_players})`
-                : 'Iniciar partida'}
+                : 'EMPEZAR PARTIDA'}
         </Button>
       ) : (
-        <p className="text-center opacity-60">
+        <p className="text-aldea-dim text-center text-[12px]">
           {todosListos ? 'Esperando al host…' : `Listos: ${listos}/${players.length}`}
         </p>
       )}
 
-      <Button
-        tone="ghost"
-        full
+      <button
+        type="button"
         onClick={async () => {
           await leaveRoom(roomId)
           onLeave()
         }}
+        className="text-aldea-dim hover:text-aldea-warm py-1 text-center text-[12px]"
       >
-        Salir
-      </Button>
+        Salir de la sala
+      </button>
+    </div>
+  )
+}
+
+function Dato({ value, label }) {
+  return (
+    <div className="bg-aldea-card flex flex-1 flex-col items-center gap-1.5 rounded-lg py-3">
+      <span className="font-title text-aldea-ink text-[14px] leading-none">{value}</span>
+      <span className="text-aldea-dim text-[11px] leading-none">{label}</span>
     </div>
   )
 }
@@ -185,9 +269,7 @@ async function copiarAlPortapapeles(texto) {
 
 function compartirWhatsApp(code) {
   const texto =
-    `Entrá a mi sala en La Aldea en Disputa\n` +
-    `Código: ${code}\n` +
-    `${window.location.origin}`
+    `Entrá a mi sala en La Aldea en Disputa\n` + `Código: ${code}\n` + `${window.location.origin}`
   // wa.me abre la app instalada en móvil y WhatsApp Web en escritorio
   window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank', 'noopener')
 }

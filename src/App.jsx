@@ -68,7 +68,7 @@ export default function App() {
     if (!gameId || drawnFor === gameId) return
     supabase
       .from('game_players')
-      .select('user_id, character_key, profiles(nickname)')
+      .select('user_id, character_key, profiles(nickname, avatar)')
       .eq('game_id', gameId)
       .then(({ data }) => setPlayers(data ?? []))
   }, [gameId, drawnFor])
@@ -142,13 +142,7 @@ export default function App() {
     )
   } else if (roomId) {
     screen = (
-      <Lobby
-        roomId={roomId}
-        userId={userId}
-        characters={catalogs.characters}
-        onGame={handleGame}
-        onLeave={goHome}
-      />
+      <Lobby roomId={roomId} userId={userId} onGame={handleGame} onLeave={goHome} />
     )
   } else {
     screen = (
@@ -166,12 +160,14 @@ export default function App() {
   return <Shell>{screen}</Shell>
 }
 
+// La app vive dentro de una tarjeta centrada, como en el prototipo: en móvil
+// ocupa todo el ancho y en escritorio queda como una consola sobre el fondo.
 function Shell({ children }) {
   return (
-    // Press Start 2P es mucho más ancha que una tipografía normal: el ancho
-    // manda, y nada puede desbordar horizontalmente en un móvil de 360px.
-    <div className="mx-auto flex h-full w-full max-w-md flex-col overflow-x-hidden p-3 text-[10px] leading-relaxed">
-      {children}
+    <div className="bg-aldea-void flex min-h-full justify-center sm:p-7 p-4">
+      <div className="bg-aldea-card border-aldea-line flex min-h-full w-full max-w-[390px] flex-col overflow-x-hidden p-4 text-[13px] leading-relaxed sm:min-h-0 sm:rounded-2xl sm:border-2 sm:shadow-2xl border-aldea-line rounded-2xl border">
+        {children}
+      </div>
     </div>
   )
 }

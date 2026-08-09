@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><style>body{margin:0;background:#0c0907;font-family:'Pixelify Sans',monospace}input{font-family:'Pixelify Sans',monospace}input::placeholder{color:#8c7a64}a{color:#e8a33d}a:hover{color:#f2bd63}</style></helmet>
+
+<div style="min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px;background:#0c0907">
+<div style="width:390px;background:#17110d;border:2px solid #3d2c1d;border-radius:14px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.6)">
+
+<sc-if value="{{ isAuth }}" hint-placeholder-val="{{ true }}">
+<div style="padding:26px 18px 22px;display:flex;flex-direction:column;gap:16px;min-height:700px">
+<div style="text-align:center;font:700 17px/1.6 Silkscreen,monospace;color:#e8a33d;letter-spacing:.5px;text-shadow:0 2px 0 #3d2c1d">LA ALDEA<br>EN DISPUTA</div>
+<div style="display:flex;background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:4px;gap:4px">
+<div onClick="{{ setLogin }}" style="{{ tabLoginStyle }}" style-hover="filter:brightness(1.08)">ENTRAR</div>
+<div onClick="{{ setSignup }}" style="{{ tabSignupStyle }}" style-hover="filter:brightness(1.08)">CREAR CUENTA</div>
+</div>
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:14px">
+<sc-if value="{{ isSignup }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="font:400 12px/1 'Pixelify Sans',monospace;color:#a08e78">Código de invitación</div>
+<input value="{{ invite }}" onChange="{{ onInvite }}" placeholder="ALDEA-0000" style="background:#17110d;border:1px solid #3d2c1d;border-radius:6px;padding:12px;font-size:14px;color:#f2e7d5;outline:none;letter-spacing:2px" />
+</div>
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="font:400 12px/1 'Pixelify Sans',monospace;color:#a08e78">Tu nombre en el juego</div>
+<input value="{{ nick }}" onChange="{{ onNick }}" placeholder="2-16 caracteres" style="background:#17110d;border:1px solid #3d2c1d;border-radius:6px;padding:12px;font-size:14px;color:#f2e7d5;outline:none" />
+</div>
+</sc-if>
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="font:400 12px/1 'Pixelify Sans',monospace;color:#a08e78">Correo</div>
+<input value="{{ email }}" onChange="{{ onEmail }}" placeholder="tu@correo.com" style="{{ emailStyle }}" />
+</div>
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:400 12px/1 'Pixelify Sans',monospace;color:#a08e78">Contraseña</div>
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}"><div onClick="{{ toggleShow }}" style="font:400 12px/1 'Pixelify Sans',monospace;color:#e8a33d;cursor:pointer">{{ showLabel }}</div></sc-if>
+</div>
+<input value="{{ pass }}" onChange="{{ onPass }}" type="{{ passType }}" placeholder="mínimo 6 caracteres" style="{{ passStyle }}" />
+</div>
+<sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;padding:10px 11px;background:rgba(192,73,46,.12);border:1px solid #c0492e;border-radius:6px">
+<div style="width:8px;height:8px;background:#e07a5f"></div>
+<div style="font:400 12px/1.4 'Pixelify Sans',monospace;color:#e07a5f">{{ error }}</div>
+</div>
+</sc-if>
+<div onClick="{{ submitAuth }}" style="text-align:center;padding:14px 0;border-radius:7px;background:#e8a33d;font:700 13px/1 Silkscreen,monospace;color:#17110d;box-shadow:0 3px 0 #8a6224;cursor:pointer" style-hover="filter:brightness(1.06)" style-active="transform:translateY(2px);box-shadow:0 1px 0 #8a6224">{{ authCta }}</div>
+</div>
+<div style="margin-top:auto;text-align:center;font:400 11px/1.5 'Pixelify Sans',monospace;color:#6f6154">Prototipo · cualquier correo con contraseña de 6+ entra</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 18px 24px;display:flex;flex-direction:column;gap:15px;min-height:700px">
+<div style="text-align:center;font:700 16px/1.6 Silkscreen,monospace;color:#e8a33d;letter-spacing:.5px;text-shadow:0 2px 0 #3d2c1d">LA ALDEA<br>EN DISPUTA</div>
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:13px;display:flex;align-items:center;gap:12px">
+<div onClick="{{ openAvatars }}" style="width:44px;height:44px;border-radius:6px;background:#3d2c1d;border:2px solid #e8a33d;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="filter:brightness(1.15)">
+<div style="{{ myAvatar.box }}"><sc-for list="{{ myAvatar.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:4px">
+<div style="font:400 10px/1 Silkscreen,monospace;color:#a08e78;letter-spacing:1.5px">BIENVENIDO</div>
+<div style="font:700 15px/1 Silkscreen,monospace;color:#f2e7d5">{{ nickDisplay }}</div>
+</div>
+<div onClick="{{ startEditName }}" style="width:30px;height:30px;border-radius:6px;background:#17110d;border:1px solid #3d2c1d;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="border-color:#e8a33d">
+<div style="display:grid;grid-template-columns:repeat(3,3px);grid-template-rows:repeat(3,3px)"><div></div><div></div><div style="background:#a08e78"></div><div></div><div style="background:#a08e78"></div><div></div><div style="background:#a08e78"></div><div></div><div></div></div>
+</div>
+</div>
+<sc-if value="{{ editingName }}" hint-placeholder-val="{{ false }}">
+<div style="background:#241a13;border:1px dashed #8a6224;border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:10px">
+<div style="font:400 11px/1 Silkscreen,monospace;color:#a08e78;letter-spacing:.5px">TU NOMBRE</div>
+<input value="{{ draftName }}" onChange="{{ onDraftName }}" placeholder="2-16 caracteres" style="{{ draftStyle }}" />
+<sc-if value="{{ nameError }}" hint-placeholder-val="{{ false }}">
+<div style="font:400 11px/1.4 'Pixelify Sans',monospace;color:#e07a5f">{{ nameError }}</div>
+</sc-if>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<div onClick="{{ saveName }}" style="{{ saveStyle }}" style-hover="filter:brightness(1.06)">Guardar</div>
+<div onClick="{{ cancelName }}" style="text-align:center;padding:12px 0;border-radius:6px;border:1px solid #3d2c1d;font:500 13px/1 'Pixelify Sans',monospace;color:#f2e7d5;cursor:pointer" style-hover="border-color:#e07a5f;color:#e07a5f">Cancelar</div>
+</div>
+</div>
+</sc-if>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+<div onClick="{{ goProfile }}" style="background:#241a13;border:1px solid #3d2c1d;border-radius:7px;padding:11px 0;text-align:center;font:500 12px/1 'Pixelify Sans',monospace;color:#f2e7d5;cursor:pointer" style-hover="border-color:#e8a33d;color:#e8a33d">Perfil</div>
+<div onClick="{{ goRanking }}" style="background:#241a13;border:1px solid #3d2c1d;border-radius:7px;padding:11px 0;text-align:center;font:500 12px/1 'Pixelify Sans',monospace;color:#f2e7d5;cursor:pointer" style-hover="border-color:#e8a33d;color:#e8a33d">Ranking</div>
+<div onClick="{{ logout }}" style="background:#241a13;border:1px solid #3d2c1d;border-radius:7px;padding:11px 0;text-align:center;font:500 12px/1 'Pixelify Sans',monospace;color:#9d8b74;cursor:pointer" style-hover="color:#e07a5f;border-color:#c0492e">Salir</div>
+</div>
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:9px">
+<div style="font:400 11px/1 Silkscreen,monospace;color:#a08e78;letter-spacing:.5px">UNIRSE A UNA SALA</div>
+<div style="display:flex;gap:8px">
+<input value="{{ joinCode }}" onChange="{{ onJoin }}" placeholder="CODIGO" style="flex:1;background:#17110d;border:1px solid #3d2c1d;border-radius:6px;padding:11px;font-size:14px;letter-spacing:4px;color:#f2e7d5;outline:none;text-transform:uppercase" />
+<div onClick="{{ joinRoom }}" style="{{ joinBtnStyle }}">Entrar</div>
+</div>
+<sc-if value="{{ joinHint }}" hint-placeholder-val="{{ false }}">
+<div style="font:400 11px/1.4 'Pixelify Sans',monospace;color:#e07a5f">Escribe los 5 caracteres del código.</div>
+</sc-if>
+</div>
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:12px">
+<div style="font:400 11px/1 Silkscreen,monospace;color:#e8a33d;letter-spacing:.5px">CREAR SALA</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="font:400 12px/1 'Pixelify Sans',monospace;color:#a08e78">Jugadores</div>
+<div style="display:flex;gap:5px">
+<sc-for list="{{ playerOpts }}" as="p" hint-placeholder-count="7">
+<div onClick="{{ p.pick }}" style="{{ p.style }}" style-hover="filter:brightness(1.25)">{{ p.n }}</div>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="font:400 12px/1 'Pixelify Sans',monospace;color:#a08e78">Duración</div>
+<sc-for list="{{ durationOpts }}" as="d" hint-placeholder-count="4">
+<div onClick="{{ d.pick }}" style="{{ d.style }}" style-hover="filter:brightness(1.15)">
+<div style="{{ d.nameStyle }}">{{ d.name }}</div>
+<div style="{{ d.metaStyle }}">{{ d.meta }}</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{ isCustom }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:11px;padding:12px;background:#17110d;border-radius:7px">
+<sc-for list="{{ customRows }}" as="r" hint-placeholder-count="3">
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="font:400 12px/1 'Pixelify Sans',monospace;color:#a08e78">{{ r.label }}</div>
+<div style="display:flex;gap:6px">
+<sc-for list="{{ r.opts }}" as="o" hint-placeholder-count="3">
+<div onClick="{{ o.pick }}" style="{{ o.style }}" style-hover="filter:brightness(1.25)">{{ o.label }}</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<div onClick="{{ createRoom }}" style="text-align:center;padding:14px 0;border-radius:7px;background:#e8a33d;font:700 13px/1 Silkscreen,monospace;color:#17110d;box-shadow:0 3px 0 #8a6224;cursor:pointer" style-hover="filter:brightness(1.06)" style-active="transform:translateY(2px);box-shadow:0 1px 0 #8a6224">CREAR</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 18px 24px;display:flex;flex-direction:column;gap:15px;min-height:700px">
+<div style="display:flex;align-items:center;gap:12px">
+<div onClick="{{ goHome }}" style="width:30px;height:30px;border-radius:6px;background:#241a13;border:1px solid #3d2c1d;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="border-color:#e8a33d">
+<div style="display:grid;grid-template-columns:repeat(4,3px);grid-template-rows:repeat(3,3px)"><div></div><div style="background:#a08e78"></div><div></div><div></div><div style="background:#a08e78"></div><div style="background:#a08e78"></div><div style="background:#a08e78"></div><div style="background:#a08e78"></div><div></div><div style="background:#a08e78"></div><div></div><div></div></div>
+</div>
+<div style="font:700 15px/1 Silkscreen,monospace;color:#f2e7d5">{{ nickDisplay }}</div>
+</div>
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:15px;display:flex;flex-direction:column;gap:14px">
+<div style="font:400 11px/1 Silkscreen,monospace;color:#a08e78;letter-spacing:.5px">TUS NÚMEROS</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+<div style="background:#17110d;border-radius:6px;padding:13px 0;text-align:center"><div style="font:700 20px/1 Silkscreen,monospace;color:#f2e7d5">{{ stats.played }}</div><div style="margin-top:7px;font:400 11px/1 'Pixelify Sans',monospace;color:#9d8b74">jugadas</div></div>
+<div style="background:#17110d;border-radius:6px;padding:13px 0;text-align:center"><div style="font:700 20px/1 Silkscreen,monospace;color:#f2e7d5">{{ stats.won }}</div><div style="margin-top:7px;font:400 11px/1 'Pixelify Sans',monospace;color:#9d8b74">ganadas</div></div>
+<div style="background:#17110d;border-radius:6px;padding:13px 0;text-align:center;box-shadow:inset 0 0 0 1px #8a6224"><div style="display:flex;align-items:baseline;justify-content:center;gap:2px"><div style="font:700 20px/1 Silkscreen,monospace;color:#e8a33d">{{ stats.rate }}</div><div style="font:600 15px/1 'Pixelify Sans',monospace;color:#e8a33d">{{ stats.rateUnit }}</div></div><div style="margin-top:7px;font:400 11px/1 'Pixelify Sans',monospace;color:#b3945f">winrate</div></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;justify-content:space-between"><div style="font:400 12px/1 'Pixelify Sans',monospace;color:#9d8b74">Más usado</div><div style="font:500 12px/1 'Pixelify Sans',monospace;color:#f2e7d5">La Arquitecta</div></div>
+<div style="display:flex;justify-content:space-between"><div style="font:400 12px/1 'Pixelify Sans',monospace;color:#9d8b74">Mejor winrate</div><div style="font:500 12px/1 'Pixelify Sans',monospace;color:#f2e7d5">El Herrero</div></div>
+<div style="display:flex;justify-content:space-between"><div style="font:400 12px/1 'Pixelify Sans',monospace;color:#9d8b74">Camino</div><div style="font:500 12px/1 'Pixelify Sans',monospace;color:#f2e7d5">acumulador</div></div>
+</div>
+</div>
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:15px;display:flex;flex-direction:column;gap:9px">
+<div style="font:400 11px/1 Silkscreen,monospace;color:#a08e78;letter-spacing:.5px">PARTIDAS RECIENTES</div>
+<sc-for list="{{ history }}" as="h" hint-placeholder-count="3">
+<div style="{{ h.style }}">
+<div style="{{ h.textStyle }}">{{ h.label }}</div>
+<div style="{{ h.ptsStyle }}">{{ h.pts }}</div>
+</div>
+</sc-for>
+</div>
+<div onClick="{{ goHome }}" style="text-align:center;padding:14px 0;border-radius:7px;border:1px solid #3d2c1d;font:500 12px/1 'Pixelify Sans',monospace;color:#a08e78;cursor:pointer" style-hover="border-color:#e8a33d;color:#e8a33d">Volver</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isRanking }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 18px 24px;display:flex;flex-direction:column;gap:15px;min-height:700px">
+<div style="display:flex;align-items:center;gap:12px">
+<div onClick="{{ goHome }}" style="width:30px;height:30px;border-radius:6px;background:#241a13;border:1px solid #3d2c1d;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="border-color:#e8a33d">
+<div style="display:grid;grid-template-columns:repeat(4,3px);grid-template-rows:repeat(3,3px)"><div></div><div style="background:#a08e78"></div><div></div><div></div><div style="background:#a08e78"></div><div style="background:#a08e78"></div><div style="background:#a08e78"></div><div style="background:#a08e78"></div><div></div><div style="background:#a08e78"></div><div></div><div></div></div>
+</div>
+<div style="font:700 13px/1 Silkscreen,monospace;color:#e8a33d">RANKING GLOBAL</div>
+</div>
+<sc-for list="{{ ranking }}" as="r" hint-placeholder-count="2">
+<div style="{{ r.rowStyle }}">
+<div style="{{ r.posStyle }}">{{ r.pos }}</div>
+<div style="width:34px;height:34px;border-radius:6px;background:#3d2c1d;display:flex;align-items:center;justify-content:center">
+<div style="{{ r.avatar.box }}"><sc-for list="{{ r.avatar.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:5px">
+<div style="font:700 13px/1 Silkscreen,monospace;color:#f2e7d5">{{ r.name }}</div>
+<div style="font:400 11px/1 'Pixelify Sans',monospace;color:#9d8b74">{{ r.meta }}</div>
+</div>
+<div style="text-align:right"><div style="{{ r.winStyle }}">{{ r.wins }}</div><div style="margin-top:5px;font:400 11px/1 'Pixelify Sans',monospace;color:#9d8b74">{{ r.rate }}</div></div>
+</div>
+</sc-for>
+<div style="padding:12px;background:#1d150f;border:1px dashed #3d2c1d;border-radius:8px;font:400 12px/1.5 'Pixelify Sans',monospace;color:#9d8b74">Estás 2º de 2. Gana una partida más para pasar a admin.</div>
+<div onClick="{{ goHome }}" style="text-align:center;padding:14px 0;border-radius:7px;border:1px solid #3d2c1d;font:500 12px/1 'Pixelify Sans',monospace;color:#a08e78;cursor:pointer" style-hover="border-color:#e8a33d;color:#e8a33d">Volver</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isRoom }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 18px 24px;display:flex;flex-direction:column;gap:15px;min-height:700px">
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:17px 14px;text-align:center;display:flex;flex-direction:column;gap:13px">
+<div style="font:400 10px/1 Silkscreen,monospace;color:#a08e78;letter-spacing:2px">CÓDIGO DE SALA</div>
+<div style="font:700 28px/1 Silkscreen,monospace;color:#e8a33d;letter-spacing:6px;text-shadow:0 3px 0 #3d2c1d">{{ roomCode }}</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<div onClick="{{ copyCode }}" style="{{ copyStyle }}" style-hover="border-color:#e8a33d">{{ copyLabel }}</div>
+<div style="padding:11px 0;border-radius:6px;border:1px solid #3d2c1d;font:500 12px/1 'Pixelify Sans',monospace;color:#f2e7d5;cursor:pointer" style-hover="border-color:#e8a33d">WhatsApp</div>
+</div>
+</div>
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:15px;display:flex;flex-direction:column;gap:11px">
+<div style="display:flex;justify-content:space-between;align-items:baseline">
+<div style="font:400 11px/1 Silkscreen,monospace;color:#a08e78;letter-spacing:.5px">JUGADORES</div>
+<div style="font:500 12px/1 'Pixelify Sans',monospace;color:#e8a33d">{{ seatLabel }}</div>
+</div>
+<div style="height:5px;border-radius:3px;background:#17110d;overflow:hidden"><div style="{{ fillStyle }}"></div></div>
+<sc-for list="{{ seats }}" as="s" hint-placeholder-count="2">
+<div style="{{ s.style }}">
+<sc-if value="{{ s.filled }}" hint-placeholder-val="{{ true }}">
+<div style="{{ s.ringStyle }}"><div style="{{ s.avatar.box }}"><sc-for list="{{ s.avatar.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div></div>
+</sc-if>
+<sc-if value="{{ s.empty }}" hint-placeholder-val="{{ false }}">
+<div style="{{ s.dot }}"></div>
+</sc-if>
+<div style="{{ s.nameStyle }}">{{ s.name }}</div>
+<sc-if value="{{ s.isHost }}" hint-placeholder-val="{{ true }}">
+<div style="font:400 11px/1 'Pixelify Sans',monospace;color:#9d8b74">host</div>
+</sc-if>
+<sc-if value="{{ s.filled }}" hint-placeholder-val="{{ true }}">
+<div style="{{ s.statusStyle }}"><div style="{{ s.statusDot }}"></div>{{ s.statusLabel }}</div>
+</sc-if>
+</div>
+</sc-for>
+<sc-if value="{{ hasFreeSeats }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ addGuest }}" style="text-align:center;padding:9px 0;border-radius:6px;border:1px dashed #3d2c1d;font:400 11px/1 'Pixelify Sans',monospace;color:#8c7a64;cursor:pointer" style-hover="border-color:#e8a33d;color:#e8a33d">simular que entra un jugador</div>
+</sc-if>
+<div style="display:flex;flex-direction:column;gap:6px;padding-top:2px">
+<div style="font:400 11px/1 'Pixelify Sans',monospace;color:#6f6154">simular sala llena de:</div>
+<div style="display:flex;gap:5px">
+<sc-for list="{{ fillOpts }}" as="f" hint-placeholder-count="6">
+<div onClick="{{ f.fill }}" style="{{ f.style }}" style-hover="border-color:#e8a33d;color:#e8a33d">{{ f.n }}</div>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{ hasGuests }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ confirmGuests }}" style="text-align:center;padding:9px 0;border-radius:6px;border:1px dashed #3d2c1d;font:400 11px/1 'Pixelify Sans',monospace;color:#8c7a64;cursor:pointer" style-hover="border-color:#7fb069;color:#8fc178">{{ confirmGuestsLabel }}</div>
+</sc-if>
+<div onClick="{{ toggleReady }}" style="{{ readyStyle }}" style-hover="filter:brightness(1.06)" style-active="transform:translateY(2px)">{{ readyLabel }}</div>
+</div>
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:15px;display:flex;flex-direction:column;gap:10px">
+<div style="font:400 11px/1 Silkscreen,monospace;color:#a08e78;letter-spacing:.5px">CONFIGURACIÓN</div>
+<div style="display:flex;gap:6px">
+<sc-for list="{{ cfg }}" as="c" hint-placeholder-count="3">
+<div style="flex:1;background:#17110d;border-radius:6px;padding:11px 0;text-align:center">
+<div style="font:700 14px/1 Silkscreen,monospace;color:#f2e7d5">{{ c.value }}</div>
+<div style="margin-top:6px;font:400 11px/1 'Pixelify Sans',monospace;color:#9d8b74">{{ c.label }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div onClick="{{ startGame }}" style="{{ startStyle }}">{{ startLabel }}</div>
+<div onClick="{{ leaveRoom }}" style="text-align:center;font:500 12px/1 'Pixelify Sans',monospace;color:#9d8b74;cursor:pointer;padding:6px" style-hover="color:#e07a5f">Salir de la sala</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isReveal }}" hint-placeholder-val="{{ false }}">
+<div style="padding:22px 18px 24px;display:flex;flex-direction:column;gap:14px;min-height:700px">
+<div style="text-align:center;font:700 13px/1 Silkscreen,monospace;color:#e8a33d">TU PERSONAJE</div>
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:22px 18px;display:flex;flex-direction:column;align-items:center;gap:14px">
+<div style="height:70px;display:flex;align-items:center;justify-content:center"><div style="{{ spinChar.box }}"><sc-for list="{{ spinChar.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div></div>
+<div style="font:700 15px/1 Silkscreen,monospace;color:#e8a33d;text-align:center">{{ spinName }}</div>
+<div style="font:500 13px/1.7 'Pixelify Sans',monospace;color:#f2e7d5;text-align:center">{{ spinAbility }}</div>
+<div style="font:400 12px/1 'Pixelify Sans',monospace;color:#9d8b74">{{ spinPath }}</div>
+</div>
+<sc-if value="{{ spinning }}" hint-placeholder-val="{{ true }}">
+<div style="text-align:center;padding:14px 0;font:400 12px/1 'Pixelify Sans',monospace;color:#8c7a64">repartiendo personajes…</div>
+</sc-if>
+<sc-if value="{{ revealDone }}" hint-placeholder-val="{{ false }}">
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:15px;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:8px">
+<div style="{{ missionIcon.box }}"><sc-for list="{{ missionIcon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="font:700 12px/1 Silkscreen,monospace;color:#e8a33d">TU MISIÓN SECRETA</div>
+</div>
+<div style="font:700 14px/1 Silkscreen,monospace;color:#f2bd63">{{ mission.name }}</div>
+<div style="font:500 13px/1.6 'Pixelify Sans',monospace;color:#f2e7d5">{{ mission.desc }}</div>
+<div style="font:400 12px/1 'Pixelify Sans',monospace;color:#9d8b74">{{ missionReward }}</div>
+</div>
+<div style="background:#241a13;border:1px solid #3d2c1d;border-radius:8px;padding:15px;display:flex;flex-direction:column;gap:9px">
+<div style="font:400 11px/1 Silkscreen,monospace;color:#a08e78;letter-spacing:.5px">EN LA MESA</div>
+<sc-for list="{{ revealTable }}" as="t" hint-placeholder-count="2">
+<div onMouseEnter="{{ t.onEnter }}" onMouseLeave="{{ t.onLeave }}" onClick="{{ t.onTap }}" style="{{ t.rowStyle }}">
+<div style="{{ t.ringStyle }}"><div style="{{ t.avatar.box }}"><sc-for list="{{ t.avatar.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div></div>
+<div style="{{ t.nameStyle }}">{{ t.name }}</div>
+<div style="font:500 12px/1 'Pixelify Sans',monospace;color:#d8cbb8">{{ t.char }}</div>
+<sc-if value="{{ t.isRival }}" hint-placeholder-val="{{ false }}">
+<div style="width:19px;height:22px;border-radius:3px;border:1px solid #3d2c1d;display:flex;align-items:center;justify-content:center">
+<div style="{{ t.qmark.box }}"><sc-for list="{{ t.qmark.cells }}" as="c" hint-placeholder-count="15"><div style="{{ c.style }}"></div></sc-for></div>
+</div>
+</sc-if>
+<sc-if value="{{ t.showTip }}" hint-placeholder-val="{{ false }}">
+<div style="{{ t.tipStyle }}">
+<div style="{{ t.tipChar.box }}"><sc-for list="{{ t.tipChar.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px">
+<div style="font:700 12px/1 Silkscreen,monospace;color:#e8a33d">{{ t.tipName }}</div>
+<div style="font:500 12px/1.55 'Pixelify Sans',monospace;color:#f2e7d5">{{ t.tipAbility }}</div>
+<div style="font:400 11px/1 'Pixelify Sans',monospace;color:#9d8b74">{{ t.tipPath }}</div>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+<div onClick="{{ goPlay }}" style="margin-top:auto;text-align:center;padding:15px 0;border-radius:7px;background:#e8a33d;font:700 13px/1 Silkscreen,monospace;color:#17110d;box-shadow:0 3px 0 #8a6224;cursor:pointer" style-hover="filter:brightness(1.06)" style-active="transform:translateY(2px);box-shadow:0 1px 0 #8a6224">A JUGAR</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isGame }}" hint-placeholder-val="{{ false }}">
+<div style="padding:16px 14px 18px;display:flex;flex-direction:column;gap:11px;min-height:700px">
+<div style="display:flex;align-items:center;gap:10px">
+<div style="flex:1;font:500 13px/1 'Pixelify Sans',monospace;color:#d8cbb8">{{ roundLabel }}</div>
+<div style="font:700 12px/1 Silkscreen,monospace;color:#e8a33d">{{ ptsLabel }}</div>
+<div style="{{ clockStyle }}">{{ clockLabel }}</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
+<sc-for list="{{ resList }}" as="r" hint-placeholder-count="4">
+<div onMouseEnter="{{ r.onEnter }}" onMouseLeave="{{ r.onLeave }}" onClick="{{ r.onTap }}" style="{{ r.style }}">
+<div style="{{ r.icon.box }}"><sc-for list="{{ r.icon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="display:flex;align-items:baseline">
+<div style="{{ r.amountStyle }}">{{ r.amount }}</div>
+<div style="font:400 11px/1 'Pixelify Sans',monospace;color:#8c7a64">{{ r.cap }}</div>
+</div>
+<sc-if value="{{ r.showTip }}" hint-placeholder-val="{{ false }}">
+<div style="{{ r.tipStyle }}">
+<div style="font:700 11px/1 Silkscreen,monospace;color:#e8a33d">{{ r.tipName }}</div>
+<div style="font:500 12px/1.4 'Pixelify Sans',monospace;color:#f2e7d5">{{ r.tipText }}</div>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:6px">
+<sc-for list="{{ boardPlayers }}" as="p" hint-placeholder-count="2">
+<div onMouseEnter="{{ p.onEnter }}" onMouseLeave="{{ p.onLeave }}" onClick="{{ p.onTap }}" style="{{ p.style }}">
+<div style="display:flex;gap:5px">
+<div style="{{ p.avatar.box }}"><sc-for list="{{ p.avatar.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="{{ p.charIcon.box }}"><sc-for list="{{ p.charIcon.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div>
+</div>
+<div style="{{ p.nameStyle }}">{{ p.name }}</div>
+<div style="font:500 12px/1 'Pixelify Sans',monospace;color:#e8a33d">{{ p.pts }}</div>
+<div style="display:flex;align-items:center;gap:5px">
+<div style="{{ p.buildIcon.box }}"><sc-for list="{{ p.buildIcon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="font:500 12px/1 'Pixelify Sans',monospace;color:#d8cbb8">{{ p.builtCount }}</div>
+</div>
+<sc-if value="{{ p.showTip }}" hint-placeholder-val="{{ false }}">
+<div style="{{ p.tipStyle }}">
+<div style="{{ p.tipChar.box }}"><sc-for list="{{ p.tipChar.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:6px">
+<div style="font:700 12px/1 Silkscreen,monospace;color:#e8a33d">{{ p.tipName }}</div>
+<div style="font:500 12px/1.55 'Pixelify Sans',monospace;color:#f2e7d5">{{ p.tipAbility }}</div>
+<div style="font:400 11px/1 'Pixelify Sans',monospace;color:#9d8b74">{{ p.tipPath }}</div>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+<div onClick="{{ toggleMission }}" style="display:flex;align-items:center;gap:9px;padding:12px;border-radius:6px;background:#241a13;border:1px solid #3d2c1d;cursor:pointer" style-hover="border-color:#8a6224">
+<div style="{{ missionIcon.box }}"><sc-for list="{{ missionIcon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="flex:1;font:700 12px/1 Silkscreen,monospace;color:#f2e7d5">TU MISIÓN SECRETA</div>
+<div style="{{ missionArrow.box }}"><sc-for list="{{ missionArrow.cells }}" as="c" hint-placeholder-count="15"><div style="{{ c.style }}"></div></sc-for></div>
+</div>
+<sc-if value="{{ missionOpen }}" hint-placeholder-val="{{ false }}">
+<div style="padding:13px;border-radius:6px;background:#1d150f;border:1px solid #8a6224;display:flex;flex-direction:column;gap:7px">
+<div style="font:700 13px/1 Silkscreen,monospace;color:#f2bd63">{{ mission.name }}</div>
+<div style="font:500 12px/1.6 'Pixelify Sans',monospace;color:#f2e7d5">{{ mission.desc }}</div>
+<div style="font:400 11px/1 'Pixelify Sans',monospace;color:#9d8b74">{{ missionReward }}</div>
+</div>
+</sc-if>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+<sc-for list="{{ hand }}" as="h" hint-placeholder-count="6">
+<div onClick="{{ h.pick }}" style="{{ h.style }}" style-hover="filter:brightness(1.1)">
+<div style="display:flex;align-items:center;gap:7px">
+<div style="{{ h.nameStyle }}">{{ h.name }}</div>
+<div style="flex:1"></div>
+<div style="{{ h.ptsStyle }}">{{ h.pts }}</div>
+<div style="{{ h.trophy.box }}"><sc-for list="{{ h.trophy.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+</div>
+<div style="display:flex;gap:10px">
+<sc-for list="{{ h.costs }}" as="k" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:5px">
+<div style="{{ k.nStyle }}">{{ k.n }}</div>
+<div style="{{ k.icon.box }}"><sc-for list="{{ k.icon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+</div>
+</sc-for>
+</div>
+<div style="{{ h.effectStyle }}">{{ h.effect }}</div>
+<sc-if value="{{ h.lacking }}" hint-placeholder-val="{{ false }}">
+<div style="font:500 11px/1.3 'Pixelify Sans',monospace;color:#e07a5f">{{ h.lackText }}</div>
+</sc-if>
+
+</div>
+</sc-for>
+</div>
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+<div onClick="{{ openSabotage }}" style="{{ sabBarStyle }}">
+<div style="{{ sabotageIcon.box }}"><sc-for list="{{ sabotageIcon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="flex:1;font:500 13px/1 'Pixelify Sans',monospace;color:#f2e7d5">{{ sabotageLabel }}</div>
+<sc-if value="{{ sabAffordable }}" hint-placeholder-val="{{ true }}">
+<div style="font:500 12px/1 'Pixelify Sans',monospace;color:#a08e78">{{ sabotageCount }}</div>
+</sc-if>
+<sc-if value="{{ sabBlocked }}" hint-placeholder-val="{{ false }}">
+<div style="font:500 11px/1 'Pixelify Sans',monospace;color:#e07a5f">{{ sabBarNote }}</div>
+</sc-if>
+</div>
+<div onClick="{{ onCta }}" style="{{ ctaStyle }}" style-hover="filter:brightness(1.06)" style-active="transform:translateY(2px);box-shadow:0 1px 0 #8a6224">{{ ctaLabel }}</div>
+<div style="display:flex;gap:7px;justify-content:center">
+<div onClick="{{ toggleBroke }}" style="padding:8px 14px;border-radius:6px;border:1px dashed #3d2c1d;font:400 11px/1 'Pixelify Sans',monospace;color:#6f6154;cursor:pointer" style-hover="border-color:#e8a33d;color:#e8a33d">{{ brokeLabel }}</div>
+<div onClick="{{ simulateEnd }}" style="padding:8px 14px;border-radius:6px;border:1px dashed #3d2c1d;font:400 11px/1 'Pixelify Sans',monospace;color:#6f6154;cursor:pointer" style-hover="border-color:#e8a33d;color:#e8a33d">simular fin de partida</div>
+</div>
+<sc-if value="{{ canCancel }}" hint-placeholder-val="{{ true }}">
+<div onClick="{{ cancelGame }}" style="align-self:center;padding:9px 18px;border-radius:6px;border:1px solid #3d2c1d;font:500 12px/1 'Pixelify Sans',monospace;color:#9d8b74;cursor:pointer" style-hover="border-color:#c0492e;color:#e07a5f">Cancelar partida</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isResolve }}" hint-placeholder-val="{{ false }}">
+<div style="padding:20px 16px 22px;display:flex;flex-direction:column;gap:13px;min-height:700px">
+<div style="display:flex;align-items:center;justify-content:center;gap:10px">
+<div style="font:700 13px/1 Silkscreen,monospace;color:#e8a33d">{{ resolveTitle }}</div>
+<div style="padding:6px 9px;border-radius:5px;background:#241a13;border:1px solid #3d2c1d;font:700 12px/1 Silkscreen,monospace;color:#f2e7d5">{{ resolveClock }}</div>
+</div>
+<sc-if value="{{ resolveEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="text-align:center;padding:16px 0;font:500 13px/1 'Pixelify Sans',monospace;color:#9d8b74">Nadie movió un dedo.</div>
+</sc-if>
+<sc-for list="{{ resolveLines }}" as="l" hint-placeholder-count="2">
+<div style="{{ l.style }}">
+<div style="{{ l.icon.box }}"><sc-for list="{{ l.icon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="flex:1;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline">
+<div style="{{ l.nameStyle }}">{{ l.name }}</div>
+<div style="{{ l.textStyle }}">{{ l.text }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isEnd }}" hint-placeholder-val="{{ false }}">
+<div style="padding:20px 16px 22px;display:flex;flex-direction:column;gap:13px;min-height:700px">
+<div style="display:flex;align-items:center;justify-content:center;gap:9px">
+<div style="{{ winnerTrophy.box }}"><sc-for list="{{ winnerTrophy.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="font:700 14px/1 Silkscreen,monospace;color:#e8a33d">{{ winnerLabel }}</div>
+</div>
+<sc-for list="{{ results }}" as="r" hint-placeholder-count="2">
+<div style="{{ r.rowStyle }}">
+<div style="display:flex;align-items:center;gap:9px">
+<div style="{{ r.ringStyle }}"><div style="{{ r.avatar.box }}"><sc-for list="{{ r.avatar.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div></div>
+<div style="{{ r.charIcon.box }}"><sc-for list="{{ r.charIcon.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="flex:1;font:700 14px/1 Silkscreen,monospace;color:#f2e7d5">{{ r.name }}</div>
+<sc-if value="{{ r.hasMedal }}" hint-placeholder-val="{{ true }}">
+<div style="{{ r.medal.box }}"><sc-for list="{{ r.medal.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+</sc-if>
+<div style="{{ r.ptsStyle }}">{{ r.pts }}</div>
+</div>
+<div style="display:flex;gap:14px">
+<sc-for list="{{ r.stats }}" as="st" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:5px">
+<div style="{{ st.icon.box }}"><sc-for list="{{ st.icon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="font:500 12px/1 'Pixelify Sans',monospace;color:#a08e78">{{ st.v }}</div>
+</div>
+</sc-for>
+</div>
+<div style="display:flex;gap:9px;align-items:flex-start;padding-top:2px">
+<div style="{{ r.missionIcon.box }}"><sc-for list="{{ r.missionIcon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="flex:1;display:flex;flex-direction:column;gap:5px">
+<div style="{{ r.missionStyle }}">{{ r.missionName }}</div>
+<div style="{{ r.missionDescStyle }}">{{ r.missionDesc }}</div>
+</div>
+</div>
+<div style="font:500 12px/1 'Pixelify Sans',monospace;color:#9d8b74">{{ r.charName }}</div>
+</div>
+</sc-for>
+<div onClick="{{ backHome }}" style="margin-top:auto;text-align:center;padding:15px 0;border-radius:7px;background:#e8a33d;font:700 13px/1 Silkscreen,monospace;color:#17110d;box-shadow:0 3px 0 #8a6224;cursor:pointer" style-hover="filter:brightness(1.06)" style-active="transform:translateY(2px);box-shadow:0 1px 0 #8a6224">VOLVER AL INICIO</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ sabModal }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeSabotage }}" style="position:fixed;inset:0;background:rgba(8,5,3,.78);display:flex;align-items:flex-start;justify-content:center;padding:20px;z-index:60;overflow-y:auto">
+<div onClick="{{ stopClick }}" style="width:352px;margin:auto;max-height:calc(100vh - 40px);overflow-y:auto;background:#241a13;border:2px solid #3d2c1d;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:13px">
+<div style="display:flex;align-items:center;gap:9px">
+<div style="{{ sabotageIcon.box }}"><sc-for list="{{ sabotageIcon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="flex:1;font:700 13px/1 Silkscreen,monospace;color:#e8a33d">SABOTAJE</div>
+<div style="font:400 11px/1 'Pixelify Sans',monospace;color:#9d8b74">{{ sabChargeLabel }}</div>
+</div>
+<div style="font:500 12px/1 'Pixelify Sans',monospace;color:#a08e78">{{ sabStepLabel }}</div>
+
+<sc-if value="{{ sabStep1 }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:7px">
+<sc-for list="{{ sabTargets }}" as="v" hint-placeholder-count="2">
+<div onClick="{{ v.pick }}" style="{{ v.style }}" style-hover="border-color:#e8a33d">
+<div style="{{ v.ringStyle }}"><div style="{{ v.avatar.box }}"><sc-for list="{{ v.avatar.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div></div>
+<div style="flex:1;font:700 12px/1 Silkscreen,monospace;color:#f2e7d5">{{ v.name }}</div>
+<div style="font:400 11px/1 'Pixelify Sans',monospace;color:#9d8b74">{{ v.char }}</div>
+</div>
+</sc-for>
+</div>
+<div onClick="{{ closeSabotage }}" style="text-align:center;padding:13px 0;border-radius:7px;border:1px solid #3d2c1d;font:500 12px/1 'Pixelify Sans',monospace;color:#a08e78;cursor:pointer" style-hover="border-color:#e07a5f;color:#e07a5f">Cancelar</div>
+</sc-if>
+
+<sc-if value="{{ sabStep2 }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:6px;background:#17110d;border:1px solid #3d2c1d">
+<div style="flex:1;font:500 12px/1 'Pixelify Sans',monospace;color:#f2e7d5">Objetivo: {{ sabTargetName }}</div>
+<div onClick="{{ backToTarget }}" style="font:400 11px/1 'Pixelify Sans',monospace;color:#e8a33d;cursor:pointer">cambiar</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
+<sc-for list="{{ sabActions }}" as="a" hint-placeholder-count="4">
+<div onClick="{{ a.pick }}" style="{{ a.style }}" style-hover="filter:brightness(1.12)">
+<div style="{{ a.wellStyle }}"><div style="{{ a.icon.box }}"><sc-for list="{{ a.icon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div></div>
+<div style="{{ a.nameStyle }}">{{ a.name }}</div>
+<div style="display:flex;gap:5px">
+<sc-for list="{{ a.costs }}" as="k" hint-placeholder-count="1">
+<div style="display:flex;align-items:center;gap:3px">
+<div style="{{ k.nStyle }}">{{ k.n }}</div>
+<div style="{{ k.wellStyle }}"><div style="{{ k.icon.box }}"><sc-for list="{{ k.icon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div></div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{ sabHasAction }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:9px;align-items:flex-start;padding:12px;border-radius:6px;background:#1d150f;border:1px solid #8a6224">
+<div style="{{ sabDescIcon.box }}"><sc-for list="{{ sabDescIcon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div>
+<div style="flex:1;font:500 12px/1.6 'Pixelify Sans',monospace;color:#f2e7d5"><span style="color:#e8a33d">{{ sabDescName }}</span> {{ sabDesc }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ sabNeedsRes }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="font:500 12px/1 'Pixelify Sans',monospace;color:#a08e78">¿Qué le robás?</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
+<sc-for list="{{ sabResOpts }}" as="r" hint-placeholder-count="4">
+<div onClick="{{ r.pick }}" style="{{ r.style }}" style-hover="filter:brightness(1.12)">
+<div style="{{ r.wellStyle }}"><div style="{{ r.icon.box }}"><sc-for list="{{ r.icon.cells }}" as="c" hint-placeholder-count="25"><div style="{{ c.style }}"></div></sc-for></div></div>
+<div style="{{ r.nameStyle }}">{{ r.name }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<div onClick="{{ backToTarget }}" style="text-align:center;padding:14px 0;border-radius:7px;border:1px solid #3d2c1d;font:500 12px/1 'Pixelify Sans',monospace;color:#f2e7d5;cursor:pointer" style-hover="border-color:#e8a33d">Volver</div>
+<div onClick="{{ confirmSabotage }}" style="{{ sabCtaStyle }}">{{ sabCta }}</div>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ avatarModal }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeAvatars }}" style="position:fixed;inset:0;background:rgba(8,5,3,.78);display:flex;align-items:flex-start;justify-content:center;padding:20px;z-index:50;overflow-y:auto">
+<div onClick="{{ stopClick }}" style="width:352px;margin:auto;max-height:calc(100vh - 40px);overflow-y:auto;background:#241a13;border:2px solid #3d2c1d;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:13px">
+<div style="font:700 13px/1 Silkscreen,monospace;color:#e8a33d">ELEGÍ TU AVATAR</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+<sc-for list="{{ avatarOpts }}" as="a" hint-placeholder-count="9">
+<div onClick="{{ a.pick }}" style="{{ a.cardStyle }}" style-hover="filter:brightness(1.12)">
+<div style="padding:7px;border-radius:5px;background:#17110d"><div style="{{ a.box }}"><sc-for list="{{ a.cells }}" as="c" hint-placeholder-count="49"><div style="{{ c.style }}"></div></sc-for></div></div>
+<div style="{{ a.nameStyle }}">{{ a.name }}</div>
+</div>
+</sc-for>
+</div>
+<div onClick="{{ closeAvatars }}" style="text-align:center;padding:13px 0;border-radius:7px;background:#e8a33d;font:700 12px/1 Silkscreen,monospace;color:#17110d;box-shadow:0 3px 0 #8a6224;cursor:pointer" style-hover="filter:brightness(1.06)">CERRAR</div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:430,&quot;height&quot;:800}}">
+const CHIP = (on) => on
+  ? "flex:1;text-align:center;padding:9px 0;border-radius:6px;background:#e8a33d;font:500 13px/1 'Pixelify Sans',monospace;color:#17110d;cursor:pointer"
+  : "flex:1;text-align:center;padding:9px 0;border-radius:6px;background:#17110d;font:500 13px/1 'Pixelify Sans',monospace;color:#a08e78;cursor:pointer";
+const SMCHIP = (on) => on
+  ? "flex:1;text-align:center;padding:9px 0;border-radius:6px;background:#e8a33d;font:500 12px/1 'Pixelify Sans',monospace;color:#17110d;cursor:pointer"
+  : "flex:1;text-align:center;padding:9px 0;border-radius:6px;background:#241a13;font:500 12px/1 'Pixelify Sans',monospace;color:#a08e78;cursor:pointer";
+const FIELD = (err) => "background:#17110d;border:1px solid " + (err ? "#c0492e" : "#3d2c1d") + ";border-radius:6px;padding:12px;font-size:14px;color:#f2e7d5;outline:none";
+const TAB = (on) => on
+  ? "flex:1;text-align:center;padding:11px 0;border-radius:5px;background:#e8a33d;font:700 11px/1 Silkscreen,monospace;color:#17110d;cursor:pointer"
+  : "flex:1;text-align:center;padding:11px 0;border-radius:5px;font:400 11px/1 Silkscreen,monospace;color:#a08e78;cursor:pointer";
+
+const AVATARS = [
+  { id: 'aldeano', name: 'Aldeano', p: { a: '#e8c9a0', b: '#2a1c12', c: '#4a7fb5' }, g: ['.ccccc.', 'ccccccc', '.aaaaa.', '.ababa.', '.aaaaa.', '..bbb..', '.aaaaa.'] },
+  { id: 'alien', name: 'Alien', p: { a: '#5ec24a', b: '#0f1a0c', c: '#5ec24a' }, g: ['..aaa..', '.aaaaa.', 'aaaaaaa', 'abbabba', 'aaaaaaa', '.aaaaa.', '..a.a..'] },
+  { id: 'oso', name: 'Oso', p: { a: '#a9754a', b: '#241a13', c: '#7a5233' }, g: ['cc...cc', '.aaaaa.', 'aaaaaaa', 'abaaaba', 'aaaaaaa', '.accca.', '..aaa..'] },
+  { id: 'rana', name: 'Rana', p: { a: '#6dbf4a', b: '#12200f', c: '#6dbf4a' }, g: ['.a...a.', 'aba.aba', 'aaaaaaa', 'aaaaaaa', 'abbbbba', '.aaaaa.', '..aaa..'] },
+  { id: 'zorro', name: 'Zorro', p: { a: '#e8a33d', b: '#17110d', c: '#f2e7d5' }, g: ['a.....a', 'aa...aa', 'aaaaaaa', 'abaaaba', 'aaaaaaa', '.acaca.', '..aaa..'] },
+  { id: 'pinguino', name: 'Pingüino', p: { a: '#2a2a2e', b: '#e8a33d', c: '#f2e7d5' }, g: ['..aaa..', '.aaaaa.', 'aaaaaaa', 'acaaaca', 'aacbcaa', '.ccccc.', '..c.c..'] },
+  { id: 'dragon', name: 'Dragón', p: { a: '#4fae6a', b: '#12200f', c: '#2f7a45' }, g: ['c..c..c', '.aaaaa.', 'aaaaaaa', 'abaaaba', 'aaaaaaa', '.accca.', '..aaa..'] },
+  { id: 'mapache', name: 'Mapache', p: { a: '#9aa0a6', b: '#2a2a2e', c: '#f2e7d5' }, g: ['a.....a', 'aaaaaaa', 'abbbbba', 'abcbcba', 'aaaaaaa', '.accca.', '..aaa..'] },
+  { id: 'robot', name: 'Robot', p: { a: '#8c93a8', b: '#17110d', c: '#e8a33d' }, g: ['...c...', '...a...', 'aaaaaaa', 'acaaaca', 'aaaaaaa', 'abbbbba', 'aaaaaaa'] },
+  { id: 'buho', name: 'Búho', p: { a: '#b98a4e', b: '#17110d', c: '#f2e7d5' }, g: ['aa...aa', 'aaaaaaa', 'acccca.', 'abcacba', 'acccca.', '.a.b.a.', '..aaa..'] },
+  { id: 'gato', name: 'Gato', p: { a: '#4c4a52', b: '#17110d', c: '#8ed17a' }, g: ['a.....a', 'aa...aa', 'aaaaaaa', 'acaaaca', 'aaaaaaa', '.abbba.', '..aaa..'] },
+  { id: 'jabali', name: 'Jabalí', p: { a: '#6d5a4a', b: '#17110d', c: '#f2e7d5' }, g: ['.a...a.', 'aaaaaaa', 'abaaaba', 'aaaaaaa', 'caaaaac', '.aaaaa.', '..bbb..'] },
+  { id: 'bruja', name: 'Bruja', p: { a: '#e8c9a0', b: '#2a1c12', c: '#6a4a86' }, g: ['...c...', '..ccc..', 'ccccccc', '.aaaaa.', '.ababa.', '.abbba.', '.aaaaa.'] },
+  { id: 'esqueleto', name: 'Esqueleto', p: { a: '#e4e0d4', b: '#17110d', c: '#a8a293' }, g: ['..aaa..', '.aaaaa.', 'aaaaaaa', 'abbabba', 'aaaaaaa', '.ababa.', '..aaa..'] },
+  { id: 'fantasma', name: 'Fantasma', p: { a: '#cfe3ef', b: '#17110d', c: '#9fc4d8' }, g: ['..aaa..', '.aaaaa.', 'aaaaaaa', 'abaaaba', 'aaaaaaa', 'aaaaaaa', 'a.a.a.a'] }
+];
+const AV = (id) => AVATARS.find(a => a.id === id) || AVATARS[4];
+const TINTS = ['#e8a33d', '#7fb069', '#6ea8d8', '#c98bd0', '#e07a5f', '#d8c85a', '#8ed17a', '#b98ae0'];
+const BOTS = ['admin', 'mora', 'tuco', 'lupe', 'nano', 'brisa', 'kori'];
+const sprite = (id, cell) => {
+  const av = AV(id);
+  return {
+    box: "display:grid;grid-template-columns:repeat(7," + cell + "px);grid-template-rows:repeat(7," + cell + "px)",
+    cells: av.g.join('').split('').map(ch => ({ style: ch === '.' ? '' : 'background:' + av.p[ch] }))
+  };
+};
+
+const CHARS = [
+  { id: 'granjero', name: 'El Granjero', path: 'acumulador', p: { a: '#6dbf4a', b: '#d8b25a', c: '#2a1c12' },
+    g: ['..ccc..', '.bbbbb.', '..aaa..', '.aaaaa.', 'aaaaaaa', '.aaaaa.', '..a.a..'],
+    ability: '+1 comida garantizada cada ronda, además de la carta de producción. Almacena hasta 15.' },
+  { id: 'guardiana', name: 'La Guardiana', path: 'superviviente', p: { a: '#4a8fd0', b: '#17110d', c: '#2a5f96' },
+    g: ['.ccccc.', 'ccccccc', '.aaaaa.', 'abbbbba', '.abbba.', '.aaaaa.', '..aaa..'],
+    ability: 'Inmune automáticamente al primer sabotaje que reciba en toda la partida.' },
+  { id: 'arquitecta', name: 'La Arquitecta', path: 'constructor', p: { a: '#c98bd0', b: '#17110d', c: '#7d4f8c' },
+    g: ['ccccccc', '.aaaaa.', 'abbbbba', 'aaaaaaa', 'abbbbba', '.aaaaa.', 'ccccccc'],
+    ability: 'El primer edificio de cada ronda cuesta un recurso menos.' },
+  { id: 'herrero', name: 'El Herrero', path: 'constructor', p: { a: '#e07a5f', b: '#17110d', c: '#8c93a8' },
+    g: ['..ccc..', '..ccc..', '..aaa..', '.aaaaa.', 'aaaaaaa', '.aaaaa.', '..a.a..'],
+    ability: 'Convierte dos recursos iguales en uno de cualquier tipo, una vez por ronda.' },
+  { id: 'mercader', name: 'El Mercader', path: 'comerciante', p: { a: '#d8c85a', b: '#17110d', c: '#a8912f' },
+    g: ['..ccc..', '.caaac.', 'caaaaac', 'caabaac', 'caaaaac', '.caaac.', '..ccc..'],
+    ability: 'Intercambia con cualquier jugador aunque haya rechazado el trato esta ronda.' },
+  { id: 'exploradora', name: 'La Exploradora', path: 'explorador', p: { a: '#6ea8d8', b: '#17110d', c: '#f2e7d5' },
+    g: ['..ccc..', '.aaaaa.', 'aabbbaa', 'aabcbaa', 'aabbbaa', '.aaaaa.', '..aaa..'],
+    ability: 'Mira la primera carta del mazo antes de decidir tu acción.' }
+];
+const CH = (id) => CHARS.find(c => c.id === id) || CHARS[0];
+const charSprite = (id, cell) => {
+  const c = CH(id);
+  return {
+    box: "display:grid;grid-template-columns:repeat(7," + cell + "px);grid-template-rows:repeat(7," + cell + "px)",
+    cells: c.g.join('').split('').map(ch => ({ style: ch === '.' ? '' : 'background:' + c.p[ch] }))
+  };
+};
+const RES = {
+  madera: { name: 'madera', p: { a: '#a9754a', b: '#5c3d24', c: '#c99a6a' }, g: ['.ccb.', 'caaab', 'cacab', 'caaab', '.bbb.'] },
+  piedra: { name: 'piedra', p: { a: '#9aa0a6', b: '#4e555b', c: '#c2c7cc' }, g: ['..cc.', '.caab', 'caaab', 'aabbb', '.bbb.'] },
+  oro: { name: 'oro', p: { a: '#e8c33d', b: '#8f6f22', c: '#f6e08a' }, g: ['.ccb.', 'ccaab', 'caaab', 'abbbb', '.bbb.'] },
+  comida: { name: 'comida', p: { a: '#6dbf4a', b: '#2f6320', c: '#8fd96a' }, g: ['.c.c.', 'caaab', '.cab.', '..b..', '..b..'] }
+};
+const resSprite = (r, cell) => {
+  const d = RES[r];
+  return {
+    box: "display:grid;grid-template-columns:repeat(5," + cell + "px);grid-template-rows:repeat(5," + cell + "px)",
+    cells: d.g.join('').split('').map(ch => ({ style: ch === '.' ? '' : 'background:' + d.p[ch] }))
+  };
+};
+const pixIcon = (rows, pal) => (cell) => ({
+  box: "display:grid;grid-template-columns:repeat(5," + cell + "px);grid-template-rows:repeat(5," + cell + "px)",
+  cells: rows.join('').split('').map(ch => ({ style: ch === '.' ? '' : 'background:' + pal[ch] }))
+});
+const CHEVRON = (open) => ({
+  box: "display:grid;grid-template-columns:repeat(5,3px);grid-template-rows:repeat(3,3px)",
+  cells: (open ? ['..a..', '.aaa.', 'aa.aa'] : ['aa.aa', '.aaa.', '..a..'])
+    .join('').split('').map(ch => ({ style: ch === '.' ? '' : 'background:#a08e78' }))
+});
+const QMARK = {
+  box: "display:grid;grid-template-columns:repeat(3,3px);grid-template-rows:repeat(5,3px)",
+  cells: ['aa.', '..a', '.a.', '...', '.a.'].join('').split('')
+    .map(ch => ({ style: ch === '.' ? '' : 'background:#a08e78' }))
+};
+const SABS = [
+  { id: 'robo', name: 'Robo', cost: [['piedra', 2]], needsRes: true,
+    icon: pixIcon(['a.a.a', 'aaaaa', 'aaaaa', '.aaa.', '..b..'], { a: '#e0a884', b: '#8c5a3c' }),
+    desc: 'Le quitás 2 unidades del recurso que elijas y pasan a tu almacén. Si no tiene, no te llevás nada.' },
+  { id: 'bloqueo', name: 'Bloqueo', cost: [['madera', 3], ['oro', 1]],
+    icon: pixIcon(['..a..', 'aaaaa', 'bbbbb', 'aaaaa', '..a..'], { a: '#e05a4a', b: '#f2e7d5' }),
+    desc: 'La próxima ronda no podrá construir. El Nómada es inmune.' },
+  { id: 'dano', name: 'Daño', cost: [['oro', 3]],
+    icon: pixIcon(['a.a.a', '.aaa.', 'aabaa', '.aaa.', 'a.a.a'], { a: '#e8a33d', b: '#e07a5f' }),
+    desc: 'Inutilizás uno de sus edificios: deja de dar su efecto. La Fortaleza es inmune.' },
+  { id: 'espionaje', name: 'Espionaje', cost: [['oro', 1], ['comida', 1]], cta: 'Espiar ahora',
+    icon: pixIcon(['.....', '.aaa.', 'abcba', '.aaa.', '.....'], { a: '#f2e7d5', b: '#4a8fd0', c: '#17110d' }),
+    desc: 'Ves sus recursos, su decisión de esta ronda y su misión secreta. Nadie se entera, ni siquiera él.' }
+];
+const SB = (id) => SABS.find(x => x.id === id);
+
+const HAND_ICON = (cell) => ({
+  box: "display:grid;grid-template-columns:repeat(5," + cell + "px);grid-template-rows:repeat(5," + cell + "px)",
+  cells: ['a.a.a', 'aaaaa', 'aaaaa', '.aaa.', '..b..'].join('').split('')
+    .map(ch => ({ style: ch === '.' ? '' : 'background:' + (ch === 'a' ? '#e0a884' : '#8c5a3c') }))
+});
+const HOUSE = (cell) => ({
+  box: "display:grid;grid-template-columns:repeat(5," + cell + "px);grid-template-rows:repeat(5," + cell + "px)",
+  cells: ['..d..', '.dab.', 'daaab', '.cbc.', '.cbc.'].join('').split('')
+    .map(ch => ({ style: ch === '.' ? '' : 'background:' + ({ a: '#a9754a', b: '#5c3d24', c: '#d8b98f', d: '#c99a6a' })[ch] }))
+});
+const MEDALS = [
+  { a: '#e8c33d', b: '#8f6f22', c: '#f6e08a' },
+  { a: '#c2c7cc', b: '#6f767c', c: '#eef1f4' },
+  { a: '#c98a52', b: '#7d4f2a', c: '#e5b183' }
+];
+const TROPHY = (cell, place) => ({
+  box: "display:grid;grid-template-columns:repeat(5," + cell + "px);grid-template-rows:repeat(5," + cell + "px)",
+  cells: ['ccaab', 'caaab', '.cab.', '..b..', '.cbb.'].join('').split('')
+    .map(ch => ({ style: ch === '.' ? '' : 'background:' + (MEDALS[place || 0] || MEDALS[0])[ch] }))
+});
+const HAND = [
+  { name: 'Leñería', pts: 1, cost: [['madera', 2]], effect: '+1 madera por ronda.' },
+  { name: 'Catedral', pts: 4, cost: [['piedra', 3], ['oro', 3]], effect: 'Solo puntos.' },
+  { name: 'Fortaleza', pts: 4, cost: [['piedra', 4], ['oro', 2]], effect: 'Inmune a daño a estructura.' },
+  { name: 'Mercado', pts: 3, cost: [['oro', 2], ['comida', 2]], effect: 'Conversión gratis 1 vez por ronda.' },
+  { name: 'Leñería', pts: 1, cost: [['madera', 2]], effect: '+1 madera por ronda.' },
+  { name: 'Mina', pts: 3, cost: [['piedra', 2], ['oro', 1]], effect: '+1 oro por ronda.' }
+];
+
+const MISSIONS = [
+  { name: 'Intacto', desc: 'Gana puntos de Superviviente en 3 rondas distintas.' },
+  { name: 'Aldea humilde', desc: 'Construye 3 edificios de nivel básico.' },
+  { name: 'Granero lleno', desc: 'Termina una ronda con 10 o más de comida.' },
+  { name: 'Buen vecino', desc: 'Cierra un intercambio con 2 jugadores distintos.' }
+];
+
+const PRESETS = {
+  rapida: { name: 'Rápida', meta: '20 pts · 10 rondas · 30s', pts: 20, rounds: 10, time: '30s' },
+  normal: { name: 'Normal', meta: '30 pts · 15 rondas · 45s', pts: 30, rounds: 15, time: '45s' },
+  larga: { name: 'Larga', meta: '40 pts · 20 rondas · 60s', pts: 40, rounds: 20, time: '60s' },
+  custom: { name: 'Personalizada', meta: 'a tu medida' }
+};
+
+class Component extends DCLogic {
+  state = {
+    screen: 'auth', tab: 'login', show: false,
+    email: '', pass: '', invite: '', nick: '', error: '',
+    joinCode: '', joinHint: false,
+    players: 3, duration: 'normal', pts: 30, rounds: 15, time: '45s',
+    roomCode: 'KB9RM', ready: false, copied: false,
+    avatar: 'zorro', avatarModal: false, guests: [],
+    spinning: false, spinIndex: 0, myChar: 'granjero', guestChars: [], mission: MISSIONS[0], hoverChar: null,
+    isHost: true, round: 1, clock: 45, myPts: 0, built: [], selected: null,
+    res: { madera: 4, piedra: 7, oro: 3, comida: 9 }, hoverRes: null, hoverKey: null, broke: false,
+    missionOpen: false, sabotageOpen: false, sabotageLeft: 4,
+    sabModal: false, sabStep: 1, sabTarget: null, sabAction: null, sabRes: null, sabDone: '',
+    results: [], winner: '', resolution: [], revealClock: 5,
+    editingName: false, draftName: '', nameError: ''
+  };
+
+  set(patch) { this.setState(patch); }
+
+  submitAuth = () => {
+    const { tab, email, pass, nick } = this.state;
+    if (!email.includes('@')) return this.set({ error: 'Escribe un correo válido.' });
+    if (pass.length < 6) return this.set({ error: 'La contraseña necesita 6 caracteres o más.' });
+    if (tab === 'signup' && nick.trim().length < 2) return this.set({ error: 'Elige un nombre de 2 a 16 caracteres.' });
+    this.set({ error: '', screen: 'home' });
+  };
+
+  componentWillUnmount() { clearTimeout(this._spin); clearInterval(this._clock); clearInterval(this._reveal); }
+
+  startPlay = () => {
+    clearInterval(this._clock);
+    const secs = parseInt(String(this.state.duration === 'custom' ? this.state.time : PRESETS[this.state.duration].time), 10);
+    this.setState({ screen: 'game', round: 1, myPts: 0, built: [], selected: null, missionOpen: false, sabotageOpen: false, clock: secs });
+    this._clock = setInterval(() => {
+      this.setState(st => st.clock <= 1
+        ? { clock: parseInt(String(st.duration === 'custom' ? st.time : PRESETS[st.duration].time), 10), round: Math.min(st.round + 1, st.duration === 'custom' ? st.rounds : PRESETS[st.duration].rounds), selected: null }
+        : { clock: st.clock - 1 });
+    }, 1000);
+  };
+
+  endPlay = (screen) => { clearInterval(this._clock); this.setState({ screen }); };
+
+  buildSelected = () => {
+    const st = this.state;
+    const nick = st.nick.trim() || 'kzadd';
+    const lines = [];
+    let res = { ...st.res };
+    let pts = st.myPts;
+    let built = st.built;
+    if (st.selected !== null) {
+      const card = HAND[st.selected];
+      const taken = Math.random() < .25 && st.guests.length > 0;
+      if (taken) {
+        lines.push({ me: true, name: 'Tú', text: 'no pudiste construir (se la llevó otro)' });
+      } else {
+        card.cost.forEach(([r, n]) => { res[r] -= n; });
+        pts += card.pts;
+        built = [...st.built, st.selected];
+        lines.push({ me: true, name: 'Tú', text: 'construiste ' + card.name });
+      }
+    } else {
+      lines.push({ me: true, name: 'Tú', text: 'guardaste tus recursos' });
+    }
+    st.guests.forEach(g => {
+      const roll = Math.random();
+      if (roll < .5) lines.push({ name: g.name, text: 'construyó ' + HAND[Math.floor(Math.random() * HAND.length)].name });
+      else if (roll < .75) lines.push({ name: g.name, text: 'no pudo construir (se la llevó otro)' });
+      else lines.push({ name: g.name, text: 'guardó sus recursos' });
+    });
+    clearInterval(this._clock);
+    this.setState({ res, myPts: pts, built, selected: null, screen: 'resolve', resolution: lines, revealClock: 5 });
+    this._reveal = setInterval(() => {
+      this.setState(s2 => {
+        if (s2.revealClock <= 1) {
+          clearInterval(this._reveal);
+          setTimeout(this.afterResolve, 0);
+          return { revealClock: 0 };
+        }
+        return { revealClock: s2.revealClock - 1 };
+      });
+    }, 1000);
+  };
+
+  afterResolve = () => {
+    const st = this.state;
+    const total = st.duration === 'custom' ? st.rounds : PRESETS[st.duration].rounds;
+    if (st.round >= total) return this.finishGame();
+    this.setState({ screen: 'game' });
+    this.nextRound();
+    this.startClock();
+  };
+
+  startClock() {
+    clearInterval(this._clock);
+    this._clock = setInterval(() => {
+      this.setState(s2 => s2.clock <= 1 ? { clock: 0 } : { clock: s2.clock - 1 });
+    }, 1000);
+  }
+
+  nextRound = () => {
+    const st = this.state;
+    const total = st.duration === 'custom' ? st.rounds : PRESETS[st.duration].rounds;
+    const secs = parseInt(String(st.duration === 'custom' ? st.time : PRESETS[st.duration].time), 10);
+    if (st.round >= total) return this.finishGame();
+    this.setState({ round: st.round + 1, clock: secs, selected: null });
+  };
+
+  finishGame = () => {
+    clearInterval(this._clock);
+    const st = this.state;
+    const nick = st.nick.trim() || 'kzadd';
+    const mine = {
+      name: nick, av: st.avatar, char: st.myChar, pts: st.myPts,
+      built: st.built.length, sabs: 4 - st.sabotageLeft, spies: 0,
+      mission: st.mission, missionDone: st.built.length >= 3
+    };
+    const others = st.guests.map((g, i) => ({
+      name: g.name, av: g.av, char: st.guestChars[i] || 'guardiana',
+      pts: 6 + Math.floor(Math.random() * 9),
+      built: Math.floor(Math.random() * 4), sabs: Math.floor(Math.random() * 3), spies: Math.floor(Math.random() * 2),
+      mission: MISSIONS[Math.floor(Math.random() * MISSIONS.length)], missionDone: Math.random() > .5
+    }));
+    const results = [mine, ...others].sort((a, b) => b.pts - a.pts);
+    this.setState({ screen: 'end', results, winner: results[0].name });
+  };
+
+  beginReveal = () => {
+    const N = CHARS.length;
+    const target = Math.floor(Math.random() * N);
+    const pool = CHARS.map((c, i) => i).filter(i => i !== target);
+    const guestChars = this.state.guests.map((g, i) => CHARS[pool[i % pool.length]].id);
+    this.setState({
+      screen: 'reveal', spinning: true, spinIndex: (target + 3) % N,
+      myChar: CHARS[target].id, guestChars,
+      mission: MISSIONS[Math.floor(Math.random() * MISSIONS.length)]
+    });
+    this.spinStep(0, target, N);
+  };
+
+  spinStep(i, target, N) {
+    const total = 26;
+    if (i >= total) { this.setState({ spinning: false, spinIndex: target }); return; }
+    this.setState({ spinIndex: ((target - (total - i)) % N + N) % N });
+    this._spin = setTimeout(() => this.spinStep(i + 1, target, N), 45 + i * i * 1.15);
+  }
+
+  makeCode() {
+    const A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    let c = '';
+    for (let i = 0; i < 5; i++) c += A[Math.floor(Math.random() * A.length)];
+    return c;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const preset = PRESETS[s.duration];
+    const pts = s.duration === 'custom' ? s.pts : preset.pts;
+    const rounds = s.duration === 'custom' ? s.rounds : preset.rounds;
+    const time = s.duration === 'custom' ? s.time : preset.time;
+    const nick = s.nick.trim() || 'kzadd';
+
+    const playerOpts = [2, 3, 4, 5, 6, 7, 8].map(n => ({
+      n, style: CHIP(s.players === n), pick: () => this.set({ players: n })
+    }));
+
+    const durationOpts = Object.keys(PRESETS).map(k => {
+      const on = s.duration === k;
+      return {
+        name: PRESETS[k].name, meta: PRESETS[k].meta, pick: () => this.set({ duration: k }),
+        style: "display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border-radius:6px;cursor:pointer;background:" + (on ? 'rgba(232,163,61,.1)' : '#17110d') + ";border:1px solid " + (on ? '#e8a33d' : 'transparent'),
+        nameStyle: "font:500 13px/1.4 'Pixelify Sans',monospace;color:" + (on ? '#e8a33d' : '#f2e7d5'),
+        metaStyle: "font:400 11px/1 'Pixelify Sans',monospace;color:" + (on ? '#b3945f' : '#9d8b74')
+      };
+    });
+
+    const row = (label, key, opts) => ({
+      label,
+      opts: opts.map(v => ({ label: String(v), style: SMCHIP(s[key] === v), pick: () => this.set({ [key]: v }) }))
+    });
+
+    const occupied = [
+      { name: nick, tag: 'host', ready: s.ready, av: s.avatar },
+      ...s.guests
+    ].slice(0, s.players);
+    const seats = [
+      ...occupied,
+      ...Array.from({ length: Math.max(0, s.players - occupied.length) }, (_, i) => ({ name: 'Esperando jugador ' + (occupied.length + i + 1) + '…', tag: '', empty: true }))
+    ].map((p, i) => ({
+      name: p.name, tag: p.empty ? '' : (p.tag === 'host' ? 'host' : ''),
+      empty: !!p.empty, filled: !p.empty,
+      isHost: p.tag === 'host',
+      statusLabel: p.ready ? 'listo' : 'sin confirmar',
+      statusStyle: "display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:5px;background:" + (p.ready ? 'rgba(127,176,105,.14)' : '#241a13') + ";font:500 11px/1 'Pixelify Sans',monospace;color:" + (p.ready ? '#8fc178' : '#9d8b74'),
+      statusDot: "width:8px;height:8px;background:" + (p.ready ? '#7fb069' : '#5a4c3e'),
+      avatar: p.empty ? null : sprite(p.av, 3),
+      style: "display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:6px;" + (p.empty ? "border:1px dashed #3d2c1d" : "background:#17110d;border:1px solid " + TINTS[i % TINTS.length]),
+      ringStyle: "width:30px;height:30px;border-radius:5px;background:#241a13;border:2px solid " + TINTS[i % TINTS.length] + ";display:flex;align-items:center;justify-content:center",
+      dot: "width:9px;height:9px;background:" + (p.empty ? '#3d2c1d' : TINTS[i % TINTS.length]),
+      nameStyle: "flex:1;font:500 12px/1 'Pixelify Sans',monospace;color:" + (p.empty ? '#b3a189' : '#f2e7d5')
+    }));
+    const freeSeats = s.players - occupied.length;
+
+    const ranking = [
+      { pos: 1, name: 'admin', meta: '3 jugadas · La Arquitecta', wins: 2, rate: '67%', av: 'oso', top: true },
+      { pos: 2, name: nick, meta: '3 jugadas · La Arquitecta', wins: 1, rate: '33%', av: s.avatar, top: false }
+    ].map(r => ({
+      pos: r.pos, name: r.name, meta: r.meta, wins: r.wins, rate: r.rate,
+      rowStyle: "display:flex;align-items:center;gap:12px;padding:13px 12px;background:#241a13;border-radius:8px;border:1px solid " + (r.top ? '#8a6224' : '#3d2c1d'),
+      posStyle: "width:24px;text-align:center;font:700 15px/1 Silkscreen,monospace;color:" + (r.top ? '#e8a33d' : '#9d8b74'),
+      winStyle: "font:700 14px/1 Silkscreen,monospace;color:" + (r.top ? '#e8a33d' : '#f2e7d5'),
+      avatar: sprite(r.av, 4)
+    }));
+
+    const history = [
+      { label: 'Hoy · 2 jugadores', pts: '5 pts', win: false },
+      { label: 'Ayer · 2 jugadores', pts: '2 pts', win: false },
+      { label: '6 ago 2026 · 2 jugadores · victoria', pts: '21 pts', win: true },
+      { label: '14 dic 2025 · 3 jugadores', pts: '8 pts', win: false }
+    ].map(h => ({
+      label: h.label, pts: h.pts,
+      style: "display:flex;align-items:center;gap:10px;padding:11px;background:#17110d;border-radius:6px;border-left:3px solid " + (h.win ? '#e8a33d' : '#3d2c1d'),
+      textStyle: "flex:1;font:400 12px/1 'Pixelify Sans',monospace;color:" + (h.win ? '#e8a33d' : '#a08e78'),
+      ptsStyle: "font:500 12px/1 'Pixelify Sans',monospace;color:" + (h.win ? '#e8a33d' : '#f2e7d5')
+    }));
+
+    const canStart = occupied.length === s.players && occupied.every(p => p.ready);
+
+    return {
+      isAuth: s.screen === 'auth', isHome: s.screen === 'home', isProfile: s.screen === 'profile',
+      isRanking: s.screen === 'ranking', isRoom: s.screen === 'room', isGame: s.screen === 'game',
+      isReveal: s.screen === 'reveal', spinning: s.spinning, revealDone: !s.spinning,
+      spinChar: charSprite(CHARS[s.spinIndex].id, 10),
+      spinName: CHARS[s.spinIndex].name,
+      spinAbility: CHARS[s.spinIndex].ability,
+      spinPath: 'Camino: ' + CHARS[s.spinIndex].path,
+      mission: s.mission,
+      missionReward: '+5 puntos · nadie más la ve',
+      hasHoverChar: !!s.hoverChar,
+      hoverName: s.hoverChar ? CH(s.hoverChar).name : '',
+      hoverAbility: s.hoverChar ? CH(s.hoverChar).ability : '',
+      hoverPath: s.hoverChar ? 'Camino: ' + CH(s.hoverChar).path : '',
+      hoverSprite: charSprite(s.hoverChar || 'granjero', 4),
+      goPlay: this.startPlay,
+      isSignup: s.tab === 'signup', isLogin: s.tab === 'login',
+      tabLoginStyle: TAB(s.tab === 'login'), tabSignupStyle: TAB(s.tab === 'signup'),
+      setLogin: () => this.set({ tab: 'login', error: '', email: '', pass: '', invite: '', nick: '', show: false }),
+      setSignup: () => this.set({ tab: 'signup', error: '', email: '', pass: '', invite: '', nick: '', show: false }),
+      authCta: s.tab === 'login' ? 'ENTRAR' : 'CREAR CUENTA',
+      email: s.email, pass: s.pass, invite: s.invite, nick: s.nick,
+      onEmail: e => this.set({ email: e.target.value, error: '' }),
+      onPass: e => this.set({ pass: e.target.value, error: '' }),
+      onInvite: e => this.set({ invite: e.target.value.toUpperCase(), error: '' }),
+      onNick: e => this.set({ nick: e.target.value, error: '' }),
+      emailStyle: FIELD(s.error.includes('correo')),
+      passStyle: FIELD(s.error.includes('contraseña')),
+      passType: (s.show || s.tab === 'signup') ? 'text' : 'password',
+      showLabel: s.show ? 'ocultar' : 'mostrar',
+      toggleShow: () => this.set({ show: !s.show }),
+      error: s.error, hasError: !!s.error,
+      submitAuth: this.submitAuth,
+
+      nickDisplay: nick,
+      goHome: () => this.set({ screen: 'home' }),
+      goProfile: () => this.set({ screen: 'profile' }),
+      goRanking: () => this.set({ screen: 'ranking' }),
+      logout: () => this.set({ screen: 'auth', pass: '', error: '', ready: false }),
+
+      joinCode: s.joinCode, joinHint: s.joinHint,
+      onJoin: e => this.set({ joinCode: e.target.value.toUpperCase().slice(0, 5), joinHint: false }),
+      joinBtnStyle: "display:flex;align-items:center;justify-content:center;text-align:center;padding:0 16px;border-radius:6px;font:500 13px/1 'Pixelify Sans',monospace;cursor:pointer;background:" + (s.joinCode.length === 5 ? '#e8a33d' : '#3d2c1d') + ";color:" + (s.joinCode.length === 5 ? '#17110d' : '#a08e78'),
+      joinRoom: () => s.joinCode.length === 5
+        ? this.set({ screen: 'room', roomCode: s.joinCode, ready: false, copied: false, isHost: false, guests: [{ name: 'admin', av: 'oso', ready: true }] })
+        : this.set({ joinHint: true }),
+
+      playerOpts, durationOpts, isCustom: s.duration === 'custom',
+      customRows: [row('Puntos objetivo', 'pts', [20, 30, 40]), row('Límite de rondas', 'rounds', [10, 15, 20]), row('Tiempo de decisión', 'time', ['30s', '45s', '60s'])],
+      createRoom: () => this.set({ screen: 'room', roomCode: this.makeCode(), ready: false, copied: false, isHost: true, guests: [] }),
+
+      roundLabel: 'Ronda ' + s.round + '/' + (s.duration === 'custom' ? s.rounds : PRESETS[s.duration].rounds),
+      ptsLabel: s.myPts + ' pts',
+      clockLabel: s.clock + 's',
+      clockStyle: "display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:5px;background:#241a13;border:1px solid " + (s.clock <= 10 ? '#c0492e' : '#3d2c1d') + ";font:700 12px/1 Silkscreen,monospace;color:" + (s.clock <= 10 ? '#e07a5f' : '#f2e7d5'),
+      resList: Object.keys(RES).map(r => ({
+        icon: resSprite(r, 4), amount: s.res[r], cap: '/10', key: r,
+        style: "position:relative;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 0;border-radius:6px;background:#241a13;border:1px solid " + (s.hoverRes === r ? '#8a6224' : '#3d2c1d') + ";cursor:help",
+        amountStyle: "font:700 13px/1 Silkscreen,monospace;color:" + (s.res[r] >= 10 ? '#e8a33d' : '#f2e7d5'),
+        onEnter: () => this.setState({ hoverRes: r }),
+        onLeave: () => this.setState({ hoverRes: null }),
+        onTap: () => this.setState({ hoverRes: s.hoverRes === r ? null : r }),
+        showTip: s.hoverRes === r,
+        tipName: RES[r].name,
+        tipText: s.res[r] + ' de 10 · tope por recurso',
+        tipStyle: "position:absolute;top:calc(100% + 8px);z-index:20;width:150px;padding:9px 10px;background:#1d150f;border:1px solid #8a6224;border-top:3px solid #e8a33d;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:5px;text-align:left;"
+          + (r === 'madera' ? "left:0" : (r === 'comida' ? "right:0" : "left:50%;transform:translateX(-50%)"))
+      })),
+      boardPlayers: occupied.map((p, i, arr) => ({
+        showTip: s.hoverKey === 'b' + i,
+        tipStyle: "position:absolute;top:calc(100% + 8px);z-index:20;width:228px;display:flex;gap:10px;align-items:flex-start;padding:11px;background:#1d150f;border:1px solid #8a6224;border-top:3px solid #e8a33d;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,.55);text-align:left;"
+          + (i % 4 === 0 ? "left:0" : (i % 4 === 3 ? "right:0" : "left:50%;transform:translateX(-50%)")),
+        tipChar: charSprite(p.tag === 'host' ? s.myChar : (s.guestChars[i - 1] || 'guardiana'), 4),
+        tipName: CH(p.tag === 'host' ? s.myChar : (s.guestChars[i - 1] || 'guardiana')).name,
+        tipAbility: CH(p.tag === 'host' ? s.myChar : (s.guestChars[i - 1] || 'guardiana')).ability,
+        tipPath: 'Camino: ' + CH(p.tag === 'host' ? s.myChar : (s.guestChars[i - 1] || 'guardiana')).path,
+        name: p.tag === 'host' ? 'Tú' : p.name,
+        pts: (p.tag === 'host' ? s.myPts : 0) + ' pts',
+        builtCount: (p.tag === 'host' ? s.built.length : 0) + '',
+        buildIcon: HOUSE(3),
+        avatar: sprite(p.av, 3),
+        charIcon: charSprite(p.tag === 'host' ? s.myChar : (s.guestChars[i - 1] || 'guardiana'), 3),
+        style: "position:relative;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding:9px 6px;border-radius:7px;background:#17110d;border:1px solid " + TINTS[i % TINTS.length] + ";cursor:help",
+        nameStyle: "font:700 12px/1 Silkscreen,monospace;color:#f2e7d5",
+        onEnter: () => this.setState({ hoverKey: 'b' + i }),
+        onLeave: () => this.setState({ hoverKey: null }),
+        onTap: () => this.setState({ hoverKey: s.hoverKey === 'b' + i ? null : 'b' + i })
+      })),
+      missionOpen: s.missionOpen,
+      toggleMission: () => this.set({ missionOpen: !s.missionOpen }),
+      missionArrow: CHEVRON(s.missionOpen),
+      missionIcon: SB('bloqueo').icon(3),
+      hand: HAND.map((c, i) => {
+        const done = false;
+        const can = c.cost.every(([r, n]) => s.res[r] >= n);
+        const on = s.selected === i;
+        const border = on ? '#6ea8d8' : (can ? '#8a6224' : '#3d2c1d');
+        return {
+          name: c.name, pts: c.pts + '', effect: c.effect, trophy: TROPHY(3),
+          costs: c.cost.map(([r, n]) => ({
+            icon: resSprite(r, 3), n,
+            nStyle: "font:700 12px/1 Silkscreen,monospace;color:" + (s.res[r] >= n ? '#e8a33d' : '#e07a5f')
+          })),
+          lacking: !done && !can,
+          lackText: 'te faltan ' + c.cost.filter(([r, n]) => s.res[r] < n).map(([r, n]) => (n - s.res[r]) + ' ' + RES[r].name).join(' y '),
+          isDone: done, doneText: 'ya construida',
+          pick: () => this.set({ selected: !can ? s.selected : (on ? null : i) }),
+          style: "display:flex;flex-direction:column;gap:7px;padding:11px;border-radius:6px;background:" + (on ? 'rgba(110,168,216,.1)' : (can || done ? '#17110d' : '#140f0b')) + ";border:1px " + (can || on || done ? 'solid' : 'dashed') + " " + border + ";cursor:" + (can ? 'pointer' : 'not-allowed') + ";opacity:" + (done ? '.45' : (can ? '1' : '.72')),
+          nameStyle: "font:700 13px/1 Silkscreen,monospace;color:" + (done ? '#9d8b74' : (on ? '#8fc0e8' : '#e8a33d')),
+          ptsStyle: "font:700 14px/1 Silkscreen,monospace;color:" + (done ? '#9d8b74' : '#f2e7d5'),
+          effectStyle: "font:500 12px/1.5 'Pixelify Sans',monospace;color:" + (done ? '#8c7a64' : '#f2e7d5')
+        };
+      }),
+      ctaLabel: s.selected === null ? 'Guardar recursos' : 'Construir ' + HAND[s.selected].name,
+      ctaStyle: "text-align:center;padding:15px 0;border-radius:7px;background:#e8a33d;font:700 13px/1 Silkscreen,monospace;color:#17110d;box-shadow:0 3px 0 #8a6224;cursor:pointer",
+      onCta: this.buildSelected,
+      sabotageIcon: HAND_ICON(3),
+      sabotageLabel: 'Sabotear a alguien',
+      sabotageCount: s.sabotageLeft + '/4',
+      sabAffordable: SABS.some(a => a.cost.every(([r, n]) => s.res[r] >= n)) && s.sabotageLeft > 0,
+      sabBlocked: !(SABS.some(a => a.cost.every(([r, n]) => s.res[r] >= n)) && s.sabotageLeft > 0),
+      sabBarStyle: "display:flex;align-items:center;gap:9px;padding:12px;border-radius:6px;background:#241a13;border:1px "
+        + ((SABS.some(a => a.cost.every(([r, n]) => s.res[r] >= n)) && s.sabotageLeft > 0) ? "solid #3d2c1d;cursor:pointer" : "dashed #3d2c1d;cursor:not-allowed;opacity:.6"),
+      sabBarNote: s.sabotageLeft === 0 ? 'sin sabotajes' : 'sin recursos',
+      openSabotage: () => (SABS.some(a => a.cost.every(([r, n]) => s.res[r] >= n)) && s.sabotageLeft > 0)
+        ? this.set({ sabModal: true, sabStep: 1, sabTarget: null, sabAction: null, sabRes: null })
+        : null,
+      closeSabotage: () => this.set({ sabModal: false }),
+      sabModal: s.sabModal,
+      stopClick: e => e.stopPropagation(),
+      sabStep1: s.sabStep === 1, sabStep2: s.sabStep === 2,
+      sabStepLabel: s.sabStep === 1 ? 'Paso 1 de 2 · ¿a quién?' : 'Paso 2 de 2 · ¿qué le hacés?',
+      sabChargeLabel: s.sabotageLeft + ' de 4 sabotajes',
+      sabTargets: occupied.filter(p => p.tag !== 'host').map((p, i) => {
+        const on = s.sabTarget === i;
+        return {
+          name: p.name, avatar: sprite(p.av, 4),
+          char: CH(s.guestChars[i] || 'guardiana').name,
+          pick: () => this.set({ sabTarget: i, sabStep: 2 }),
+          style: "display:flex;align-items:center;gap:11px;padding:12px;border-radius:7px;cursor:pointer;background:" + (on ? 'rgba(232,163,61,.12)' : '#17110d') + ";border:1px solid " + (on ? '#e8a33d' : '#3d2c1d'),
+          ringStyle: "width:34px;height:34px;border-radius:5px;background:#241a13;border:2px solid " + TINTS[(i + 1) % TINTS.length] + ";display:flex;align-items:center;justify-content:center"
+        };
+      }),
+      sabTargetName: s.sabTarget !== null ? occupied.filter(p => p.tag !== 'host')[s.sabTarget].name : '',
+      backToTarget: () => this.set({ sabStep: 1, sabAction: null, sabRes: null }),
+      sabActions: SABS.map(a => {
+        const can = a.cost.every(([r, n]) => s.res[r] >= n);
+        const on = s.sabAction === a.id;
+        return {
+          name: a.name, icon: a.icon(4), on,
+          wellStyle: "padding:6px;border-radius:5px;background:#17110d",
+          costs: a.cost.map(([r, n]) => ({
+            icon: resSprite(r, 3), n,
+            nStyle: "font:700 11px/1 Silkscreen,monospace;color:" + (on ? '#17110d' : '#e8a33d'),
+            wellStyle: ""
+          })),
+          pick: () => can ? this.set({ sabAction: a.id, sabRes: null }) : null,
+          style: "display:flex;flex-direction:column;align-items:center;gap:7px;padding:11px 6px;border-radius:7px;cursor:" + (can ? 'pointer' : 'default') + ";opacity:" + (can ? '1' : '.4') + ";background:" + (on ? '#e8a33d' : '#17110d') + ";border:1px solid " + (on ? '#e8a33d' : '#3d2c1d'),
+          nameStyle: "font:500 12px/1 'Pixelify Sans',monospace;color:" + (on ? '#17110d' : '#f2e7d5')
+        };
+      }),
+      sabHasAction: !!s.sabAction,
+      sabDesc: s.sabAction ? SB(s.sabAction).desc : '',
+      sabDescName: s.sabAction ? SB(s.sabAction).name + ':' : '',
+      sabDescIcon: s.sabAction ? SB(s.sabAction).icon(3) : SABS[0].icon(3),
+      sabNeedsRes: !!(s.sabAction && SB(s.sabAction).needsRes),
+      sabResOpts: Object.keys(RES).map(r => ({
+        icon: resSprite(r, 4), name: RES[r].name,
+        wellStyle: "padding:6px;border-radius:5px;background:#17110d",
+        pick: () => this.set({ sabRes: r }),
+        style: "display:flex;flex-direction:column;align-items:center;gap:6px;padding:9px 0;border-radius:6px;cursor:pointer;background:" + (s.sabRes === r ? '#e8a33d' : '#17110d') + ";border:1px solid " + (s.sabRes === r ? '#e8a33d' : '#3d2c1d'),
+        nameStyle: "font:400 11px/1 'Pixelify Sans',monospace;color:" + (s.sabRes === r ? '#17110d' : '#9d8b74')
+      })),
+      sabReady: !!(s.sabAction && (!SB(s.sabAction).needsRes || s.sabRes)),
+      sabCta: s.sabAction
+        ? (SB(s.sabAction).cta || 'Sabotear a ' + (s.sabTarget !== null ? occupied.filter(p => p.tag !== 'host')[s.sabTarget].name : ''))
+        : 'Elegí una acción',
+      sabCtaStyle: (s.sabAction && (!SB(s.sabAction).needsRes || s.sabRes))
+        ? "text-align:center;padding:14px 0;border-radius:7px;background:#e8a33d;font:700 12px/1 Silkscreen,monospace;color:#17110d;box-shadow:0 3px 0 #8a6224;cursor:pointer"
+        : "text-align:center;padding:14px 0;border-radius:7px;background:#241a13;border:1px solid #3d2c1d;font:500 12px/1 'Pixelify Sans',monospace;color:#8c7a64",
+      confirmSabotage: () => {
+        if (!s.sabAction || (SB(s.sabAction).needsRes && !s.sabRes)) return;
+        const cost = SB(s.sabAction).cost;
+        const res = { ...s.res };
+        cost.forEach(([r, n]) => { res[r] -= n; });
+        this.set({ res, sabotageLeft: Math.max(0, s.sabotageLeft - 1), sabModal: false });
+      },
+      canCancel: s.isHost,
+      cancelGame: () => this.endPlay('home'),
+      simulateEnd: this.finishGame,
+      brokeLabel: s.broke ? 'devolver recursos' : 'simular sin recursos',
+      toggleBroke: () => this.set(s.broke
+        ? { broke: false, res: { madera: 4, piedra: 7, oro: 3, comida: 9 } }
+        : { broke: true, res: { madera: 1, piedra: 1, oro: 0, comida: 2 }, selected: null }),
+
+      isResolve: s.screen === 'resolve',
+      resolveTitle: 'Revelación · ronda ' + s.round,
+      resolveClock: s.revealClock + 's',
+      resolveEmpty: s.resolution.length === 0,
+      resolveLines: s.resolution.map(l => ({
+        icon: HOUSE(3), name: l.name, text: l.text,
+        style: "display:flex;align-items:flex-start;gap:9px;padding:12px;border-radius:6px;background:#241a13;border:1px solid #3d2c1d",
+        nameStyle: "font:700 12px/1.4 Silkscreen,monospace;color:" + (l.me ? '#f2e7d5' : '#e8a33d'),
+        textStyle: "font:500 13px/1.5 'Pixelify Sans',monospace;color:#d8cbb8"
+      })),
+
+      isEnd: s.screen === 'end',
+      winnerLabel: 'Ganó ' + s.winner,
+      winnerTrophy: TROPHY(4),
+      results: s.results.map((r, i) => ({
+        name: r.name, pts: r.pts + ' pts',
+        avatar: sprite(r.av, 3), charIcon: charSprite(r.char, 3), charName: CH(r.char).name,
+        missionName: r.mission.name, missionDesc: r.mission.desc,
+        missionIcon: SB('bloqueo').icon(3),
+        missionStyle: "font:700 13px/1.4 Silkscreen,monospace;color:" + (r.missionDone ? '#f2bd63' : '#9d8b74'),
+        missionDescStyle: "font:500 12px/1.5 'Pixelify Sans',monospace;color:" + (r.missionDone ? '#f2e7d5' : '#8c7a64'),
+        hasMedal: i < 3, medal: TROPHY(5, i),
+        stats: [
+          { icon: HOUSE(3), v: r.built + '' },
+          { icon: TROPHY(3, i), v: r.pts + '' },
+          { icon: HAND_ICON(3), v: r.sabs + '' },
+          { icon: SB('espionaje').icon(3), v: r.spies + '' }
+        ],
+        rowStyle: "display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:8px;background:#241a13;border:1px solid " + (i === 0 ? '#8a6224' : '#3d2c1d'),
+        ptsStyle: "font:700 14px/1 Silkscreen,monospace;color:" + (i === 0 ? '#e8a33d' : '#f2e7d5'),
+        ringStyle: "width:28px;height:28px;border-radius:5px;background:#17110d;border:1px solid " + TINTS[i % TINTS.length] + ";display:flex;align-items:center;justify-content:center"
+      })),
+      backHome: () => this.set({ screen: 'home', guests: [], ready: false }),
+
+      stats: { played: 3, won: 1, rate: '33', rateUnit: '%' }, history, ranking,
+
+      editingName: s.editingName, draftName: s.draftName, nameError: s.nameError,
+      startEditName: () => this.set({ editingName: true, draftName: nick, nameError: '' }),
+      onDraftName: e => this.set({ draftName: e.target.value.slice(0, 16), nameError: '' }),
+      draftStyle: "background:#17110d;border:1px solid " + (s.nameError ? '#c0492e' : '#3d2c1d') + ";border-radius:6px;padding:12px;font-size:15px;color:#f2e7d5;outline:none",
+      saveStyle: "text-align:center;padding:12px 0;border-radius:6px;font:700 13px/1 'Pixelify Sans',monospace;cursor:pointer;background:" + (s.draftName.trim().length >= 2 ? '#e8a33d' : '#3d2c1d') + ";color:" + (s.draftName.trim().length >= 2 ? '#17110d' : '#a08e78'),
+      saveName: () => {
+        const v = s.draftName.trim();
+        if (v.length < 2) return this.set({ nameError: 'El nombre necesita al menos 2 caracteres.' });
+        this.set({ nick: v, editingName: false, nameError: '' });
+      },
+      cancelName: () => this.set({ editingName: false, nameError: '' }),
+
+      myAvatar: sprite(s.avatar, 5),
+      avatarModal: s.avatarModal,
+      openAvatars: () => this.set({ avatarModal: true }),
+      closeAvatars: () => this.set({ avatarModal: false }),
+      avatarOpts: AVATARS.map(a => {
+        const on = s.avatar === a.id;
+        const sp = sprite(a.id, 5);
+        return {
+          name: a.name, box: sp.box, cells: sp.cells,
+          pick: () => this.set({ avatar: a.id }),
+          cardStyle: "display:flex;flex-direction:column;align-items:center;gap:9px;padding:12px 6px;border-radius:7px;cursor:pointer;background:" + (on ? '#e8a33d' : '#17110d') + ";border:1px solid " + (on ? '#e8a33d' : '#3d2c1d'),
+          nameStyle: "font:500 12px/1 'Pixelify Sans',monospace;color:" + (on ? '#17110d' : '#f2e7d5')
+        };
+      }),
+
+      roomCode: s.roomCode,
+      copyLabel: s.copied ? 'Copiado' : 'Copiar',
+      copyStyle: "padding:11px 0;border-radius:6px;border:1px solid " + (s.copied ? '#e8a33d' : '#3d2c1d') + ";font:500 12px/1 'Pixelify Sans',monospace;color:" + (s.copied ? '#e8a33d' : '#f2e7d5') + ";cursor:pointer",
+      copyCode: () => { this.set({ copied: true }); setTimeout(() => this.set({ copied: false }), 1600); },
+      seats, tableSeats: seats.filter(x => x.filled), seatLabel: occupied.length + ' / ' + s.players,
+      revealTable: occupied.map((p, i) => ({
+        name: p.tag === 'host' ? 'Tú' : p.name,
+        char: p.tag === 'host' ? CH(s.myChar).name : CH(s.guestChars[i - 1] || 'guardiana').name,
+        isRival: p.tag !== 'host', qmark: QMARK,
+        showTip: s.hoverKey === 'r' + i,
+        onEnter: p.tag === 'host' ? () => {} : () => this.setState({ hoverKey: 'r' + i }),
+        onLeave: () => this.setState({ hoverKey: null }),
+        onTap: p.tag === 'host' ? () => {} : () => this.setState({ hoverKey: s.hoverKey === 'r' + i ? null : 'r' + i }),
+        tipChar: charSprite(s.guestChars[i - 1] || 'guardiana', 4),
+        tipName: CH(s.guestChars[i - 1] || 'guardiana').name,
+        tipAbility: CH(s.guestChars[i - 1] || 'guardiana').ability,
+        tipPath: 'Camino: ' + CH(s.guestChars[i - 1] || 'guardiana').path,
+        tipStyle: "position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:20;display:flex;gap:10px;align-items:flex-start;padding:11px;background:#1d150f;border:1px solid #8a6224;border-top:3px solid #e8a33d;border-radius:6px;box-shadow:0 8px 20px rgba(0,0,0,.55)",
+        avatar: sprite(p.av, 3),
+        ringStyle: "width:26px;height:26px;border-radius:5px;background:#241a13;border:2px solid " + TINTS[i % TINTS.length] + ";display:flex;align-items:center;justify-content:center",
+        nameStyle: "flex:1;font:700 12px/1 Silkscreen,monospace;color:" + (p.tag === 'host' ? '#f2e7d5' : '#d8cbb8'),
+        rowStyle: "position:relative;display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:6px;background:#17110d;border:1px solid " + TINTS[i % TINTS.length] + (p.tag === 'host' ? "" : ";cursor:help")
+      })),
+      hasFreeSeats: freeSeats > 0,
+      hasGuests: s.guests.length > 0,
+      fillOpts: [3, 4, 5, 6, 7, 8].map(n => ({
+        n,
+        style: "flex:1;text-align:center;padding:8px 0;border-radius:6px;border:1px dashed " + (s.players === n ? '#e8a33d' : '#3d2c1d') + ";font:500 12px/1 'Pixelify Sans',monospace;color:" + (s.players === n ? '#e8a33d' : '#8c7a64') + ";cursor:pointer",
+        fill: () => {
+          const used = [nick];
+          const guests = Array.from({ length: n - 1 }, (_, k) => {
+            const name = BOTS.filter(b => !used.includes(b))[0] || 'jugador' + (k + 2);
+            used.push(name);
+            return { name, av: AVATARS[(k * 3 + 2) % AVATARS.length].id, ready: true };
+          });
+          this.set({ players: n, guests, ready: true });
+        }
+      })),
+      guestsReady: s.guests.length > 0 && s.guests.every(g => g.ready),
+      confirmGuestsLabel: (s.guests.length > 0 && s.guests.every(g => g.ready))
+        ? 'simular que los demás se desmarcan'
+        : 'simular que los demás confirman',
+      confirmGuests: () => {
+        const allReady = s.guests.every(g => g.ready);
+        this.set({ guests: s.guests.map(g => ({ ...g, ready: !allReady })) });
+      },
+      addGuest: () => {
+        const used = [nick, ...s.guests.map(g => g.name)];
+        const name = BOTS.find(b => !used.includes(b)) || 'jugador' + (s.guests.length + 2);
+        const av = AVATARS[Math.floor(Math.random() * AVATARS.length)].id;
+        this.set({ guests: [...s.guests, { name, av, ready: Math.random() > .4 }] });
+      },
+      fillStyle: "width:" + Math.round(100 * occupied.length / s.players) + "%;height:100%;background:#e8a33d;transition:width .25s",
+      ready: s.ready,
+      readyLabel: s.ready ? 'YA NO ESTOY LISTO' : 'ESTOY LISTO',
+      readyStyle: s.ready
+        ? "text-align:center;padding:14px 0;border-radius:7px;background:#241a13;border:1px solid #7fb069;font:700 12px/1 Silkscreen,monospace;color:#7fb069;cursor:pointer"
+        : "text-align:center;padding:14px 0;border-radius:7px;background:#e8a33d;font:700 12px/1 Silkscreen,monospace;color:#17110d;box-shadow:0 3px 0 #8a6224;cursor:pointer",
+      toggleReady: () => this.set({ ready: !s.ready }),
+      cfg: [{ value: pts, label: 'puntos' }, { value: rounds, label: 'rondas' }, { value: time, label: 'decisión' }],
+      startGame: canStart ? this.beginReveal : () => {},
+      startLabel: canStart ? 'EMPEZAR PARTIDA' : (freeSeats > 0 ? 'Faltan jugadores' : 'Faltan confirmaciones'),
+      startStyle: canStart
+        ? "text-align:center;padding:14px 0;border-radius:7px;background:#e8a33d;font:700 12px/1 Silkscreen,monospace;color:#17110d;box-shadow:0 3px 0 #8a6224;cursor:pointer"
+        : "text-align:center;padding:14px 0;border-radius:7px;background:#241a13;border:1px solid #3d2c1d;font:500 12px/1 'Pixelify Sans',monospace;color:#9d8b74",
+      leaveRoom: () => this.set({ screen: 'home', ready: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

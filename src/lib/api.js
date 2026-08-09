@@ -10,7 +10,7 @@ export async function signIn(email, password) {
     email: email.trim(),
     password,
   })
-  if (error) throw new Error(traducirAuth(error.message))
+  if (error) throw traducirAuth(error.message)
   return data.session
 }
 
@@ -22,15 +22,19 @@ export async function signUp({ inviteCode, nickname, email, password }) {
     supabase.rpc('invite_code_valid', { p_code: inviteCode }),
     supabase.rpc('nickname_available', { p_nickname: nickname }),
   ])
-  if (!codeOk) throw new Error('Código de invitación inválido')
-  if (!nickOk) throw new Error('Ese nombre ya está en uso o no es válido (2-16 caracteres)')
+  if (!codeOk) throw fallo('Código de invitación inválido', 'inviteCode')
+  // `nickname_available` devuelve false por dos motivos distintos; separarlos
+  // acá evita el mensaje ambiguo de antes.
+  const largo = nickname.trim().length
+  if (largo < 2 || largo > 16) throw fallo('Elige un nombre de 2 a 16 caracteres.', 'nickname')
+  if (!nickOk) throw fallo('Ese nombre ya está en uso', 'nickname')
 
   const { data, error } = await supabase.auth.signUp({
     email: email.trim(),
     password,
     options: { data: { nickname: nickname.trim(), invite_code: inviteCode.trim().toUpperCase() } },
   })
-  if (error) throw new Error(traducirAuth(error.message))
+  if (error) throw traducirAuth(error.message)
 
   // Sin sesión = el proyecto exige confirmar el correo antes de entrar
   return { session: data.session, needsConfirmation: !data.session }
@@ -40,18 +44,31 @@ export async function signOut() {
   await supabase.auth.signOut()
 }
 
+// Cada error viaja con los campos que hay que marcar en rojo (`e.campos`).
+export const fallo = (mensaje, ...campos) => Object.assign(new Error(mensaje), { campos })
+
 const traducirAuth = (m) => {
   const msg = String(m)
-  if (/Invalid login credentials/i.test(msg)) return 'Correo o contraseña incorrectos'
-  if (/Email not confirmed/i.test(msg)) return 'Todavía no confirmaste tu correo'
-  if (/User already registered/i.test(msg)) return 'Ese correo ya tiene una cuenta'
+  if (/Invalid login credentials/i.test(msg))
+    return fallo('Correo o contraseña incorrectos', 'email', 'password')
+  if (/Email not confirmed/i.test(msg)) return fallo('Todavía no confirmaste tu correo', 'email')
+  if (/User already registered/i.test(msg)) return fallo('Ese correo ya tiene una cuenta', 'email')
   if (/Password should be at least (\d+)/i.test(msg))
-    return `La contraseña necesita al menos ${msg.match(/at least (\d+)/i)[1]} caracteres`
-  if (/valid email/i.test(msg)) return 'Ese correo no parece válido'
+    return fallo(
+      `La contraseña necesita ${msg.match(/at least (\d+)/i)[1]} caracteres o más.`,
+      'password',
+    )
+  // "Unable to validate email address: invalid format" y variantes.
+  if (/valid.*email|email.*invalid|invalid format/i.test(msg))
+    return fallo('Escribe un correo válido', 'email')
   if (/Database error saving new user/i.test(msg))
-    return 'No se pudo crear la cuenta: revisá el código de invitación y el nombre'
-  if (/rate limit|too many/i.test(msg)) return 'Demasiados intentos, esperá un momento'
-  return msg
+    return fallo(
+      'No se pudo crear la cuenta: revisá el código de invitación y el nombre',
+      'inviteCode',
+      'nickname',
+    )
+  if (/rate limit|too many/i.test(msg)) return fallo('Demasiados intentos, esperá un momento')
+  return fallo(msg)
 }
 
 // Devuelve null si el perfil no existe. Pasa cuando el navegador conserva una

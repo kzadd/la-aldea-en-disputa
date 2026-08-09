@@ -1,26 +1,57 @@
 @import 'tailwindcss';
 
-/* Fuente autoalojada: la PWA tiene que funcionar sin red (SIL OFL 1.1) */
+/* Tipografías autoalojadas (SIL OFL 1.1): la PWA tiene que funcionar sin red.
+   Silkscreen para títulos y etiquetas, Pixelify Sans para el texto corrido —
+   Silkscreen es demasiado dura para leer párrafos. */
 @font-face {
-  font-family: 'Press Start 2P';
+  font-family: 'Silkscreen';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('./assets/press-start-2p-latin.woff2') format('woff2');
+  src: url('./assets/silkscreen-400.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Silkscreen';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./assets/silkscreen-700.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
+    U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Pixelify Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./assets/pixelify-sans-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
     U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
     U+FEFF, U+FFFD;
 }
 
 @theme {
-  /* Paleta aclarada: la original quedaba casi negra en pantallas de móvil con
-     poco brillo. Se sube todo un escalón manteniendo el tono cálido. */
-  --color-aldea-bg: #2a2019;
-  --color-aldea-panel: #3b2d23;
-  --color-aldea-ink: #f5e9d5;
-  --color-aldea-accent: #e2ac4d;
-  --color-aldea-luz: #4d3b2e; /* borde iluminado del relieve */
-  --color-aldea-sombra: #221910; /* borde en sombra */
+  --color-aldea-void: #0c0907; /* fondo detrás de la tarjeta */
+  --color-aldea-card: #17110d; /* superficie de la app y de los huecos */
+  --color-aldea-panel: #241a13; /* paneles */
+  --color-aldea-line: #3d2c1d; /* bordes */
+  --color-aldea-accent: #e8a33d;
+  --color-aldea-accent-dark: #8a6224; /* relieve del botón principal */
+  --color-aldea-accent-soft: #f2bd63;
+  --color-aldea-ink: #f2e7d5;
+  --color-aldea-muted: #a08e78;
+  --color-aldea-dim: #9d8b74;
+  --color-aldea-faint: #6f6154;
+  --color-aldea-danger: #c0492e;
+  --color-aldea-warm: #e07a5f;
+  --color-aldea-green: #7fb069;
+
+  --font-title: 'Silkscreen', ui-monospace, monospace;
+  --font-body: 'Pixelify Sans', ui-monospace, monospace;
 }
 
 html,
@@ -31,14 +62,10 @@ body,
 
 body {
   margin: 0;
-  background: var(--color-aldea-bg);
+  background: var(--color-aldea-void);
   color: var(--color-aldea-ink);
-  font-family: 'Press Start 2P', ui-monospace, monospace;
-  -webkit-font-smoothing: none;
+  font-family: var(--font-body);
   overscroll-behavior: none;
-  /* Textura sutil de "papel viejo" sin imágenes */
-  background-image: radial-gradient(circle at 50% 0%, #4a382b 0%, var(--color-aldea-bg) 75%);
-  background-attachment: fixed;
   /* Juego, no documento: nada de seleccionar texto sin querer al tocar */
   user-select: none;
   -webkit-user-select: none;
@@ -48,53 +75,63 @@ input,
 textarea {
   user-select: text;
   -webkit-user-select: text;
+  font-family: var(--font-body);
+}
+
+input::placeholder {
+  color: #8c7a64;
 }
 
 img {
   image-rendering: pixelated;
 }
 
-/* Bordes duros: nada de esquinas redondeadas suaves en pixel art */
-.rounded,
-.rounded-lg {
-  border-radius: 0 !important;
+/* Títulos y etiquetas cortas en Silkscreen */
+.font-title {
+  font-family: var(--font-title);
 }
 
-/* Relieve de 2px estilo consola de 8 bits */
-.bg-aldea-panel {
-  box-shadow:
-    inset 2px 2px 0 var(--color-aldea-luz),
-    inset -2px -2px 0 var(--color-aldea-sombra);
+/* Botón principal: relieve duro de 3px que se hunde al pulsarlo. Es la
+   respuesta táctil que el hover no puede dar en un móvil. */
+.btn-solid {
+  box-shadow: 0 3px 0 var(--color-aldea-accent-dark);
 }
 
-/* Todo botón es una tecla de 8 bits: relieve arriba/izquierda claro, abajo/
-   derecha oscuro, y al pulsarla se hunde. Es lo que da la respuesta táctil que
-   el hover no puede dar en un móvil. */
 button {
+  /* Tailwind 4 dejó de darle `pointer` a los botones: hay que ponerlo a mano. */
+  cursor: pointer;
   transition:
-    filter 0.1s steps(2, end),
-    transform 0.06s steps(2, end);
-  box-shadow:
-    inset 2px 2px 0 rgb(255 255 255 / 0.14),
-    inset -2px -2px 0 rgb(0 0 0 / 0.35);
-}
-
-button:disabled {
-  box-shadow: none;
+    filter 0.1s ease,
+    transform 0.06s ease,
+    border-color 0.12s ease;
 }
 
 @media (hover: hover) {
   button:not(:disabled):hover {
-    filter: brightness(1.15);
+    filter: brightness(1.08);
   }
 }
 
 button:not(:disabled):active {
   transform: translateY(2px);
-  filter: brightness(0.9);
-  box-shadow:
-    inset -2px -2px 0 rgb(255 255 255 / 0.1),
-    inset 2px 2px 0 rgb(0 0 0 / 0.4);
+}
+
+.btn-solid:not(:disabled):active {
+  box-shadow: 0 1px 0 var(--color-aldea-accent-dark);
+}
+
+/* Deshabilitado = plano. El relieve es la promesa de que se puede hundir; si no
+   se puede pulsar, no hay que prometerlo. Atenuado por la opacidad tampoco
+   servía: quedaba como un borde sucio, ni sombra ni nada. */
+button:disabled {
+  box-shadow: none;
+  cursor: default;
+}
+
+/* Evita el zoom por doble tap y la selección accidental durante la partida */
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Lo que se puede tocar para saber más lleva cursor de ayuda en escritorio */
@@ -102,17 +139,18 @@ button:not(:disabled):active {
   cursor: help;
 }
 
-/* Evita el zoom por doble tap y la selección accidental durante la partida */
-button {
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-
 @keyframes aldea-pop {
-  0% { transform: scale(0.85); opacity: 0; }
-  60% { transform: scale(1.06); }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .animate-pop {

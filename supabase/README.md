@@ -25,6 +25,7 @@ Proyecto Supabase nuevo e independiente de VETA / La Torre del Dragón (ARCHITEC
 | `migrations/20260807121600_cancel_action_fix.sql` | `cancel_action` no toca `confirmed_at` (es NOT NULL) |
 | `migrations/20260807121700_tick_2s.sql` | `tick_games()` cada 2 s: el reveal se cierra a tiempo |
 | `migrations/20260807121800_cancelar_partida.sql` | Estado `cancelled`: el host corta sin puntuar |
+| `migrations/20260807121900_avatares_nuevos.sql` | Seis avatares más (búho, gato, jabalí, bruja, esqueleto, fantasma) |
 
 ## Cuentas y código de invitación
 
@@ -114,10 +115,10 @@ El cliente nunca las llama.
 
 ```text
 decision --(deadline vencido | todos confirmaron)--> resolve_round
-       --> reveal (7 s, ARCHITECTURE §7 paso 7) --> _open_decision --> decision (ronda+1)
+       --> reveal (5 s) --> _open_decision --> decision (ronda+1)
 ```
 
-Ambas transiciones las dispara `tick_games()` desde pg_cron cada 5 s. `submit_action`
+Ambas transiciones las dispara `tick_games()` desde pg_cron cada 2 s. `submit_action`
 adelanta el cierre cuando confirma el último jugador.
 
 ## Aplicar

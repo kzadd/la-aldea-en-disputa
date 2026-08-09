@@ -11,10 +11,11 @@ export const RESOURCES = [
 export const RES_ICON = Object.fromEntries(RESOURCES.map((r) => [r.key, r.icon]))
 export const RES_LABEL = Object.fromEntries(RESOURCES.map((r) => [r.key, r.label]))
 
-export const TIER_STYLE = {
-  basico: 'border-stone-500',
-  intermedio: 'border-sky-500',
-  avanzado: 'border-amber-400',
+// El nivel de la construcción se lee por el color del borde
+export const TIER_BORDE = {
+  basico: 'border-aldea-line',
+  intermedio: 'border-[#4a8fd0]/60',
+  avanzado: 'border-aldea-accent-dark',
 }
 
 // Costos y cooldowns espejo de _sabotage_cost/_sabotage_cooldown: solo para
@@ -61,4 +62,6 @@ export const PATH_ICON = {
   acumulador: 'caja',
   superviviente: 'escudo',
   saboteador: 'bandera',
+  comerciante: 'oro',
+  explorador: 'espionaje',
 }
