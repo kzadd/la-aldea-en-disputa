@@ -52,7 +52,7 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="font-title text-aldea-accent py-1 text-center text-[13px]">
+      <h1 className="font-title text-aldea-accent py-1 text-center text-[13px] font-extrabold">
         TU PERSONAJE
       </h1>
 
@@ -65,7 +65,7 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
         {/* La habilidad y el camino se ven también mientras gira: el sorteo
             enseña los ocho personajes de paso, no solo sus caras. */}
         <PixelIcon name={CHARACTER_SPRITE[shown] ?? 'interrogante'} size={70} />
-        <p className="font-title text-aldea-accent text-[15px]">{char?.name}</p>
+        <p className="font-title text-aldea-accent text-[15px] font-extrabold">{char?.name}</p>
         <p className="text-[13px] leading-[1.7]">{char?.passive_text}</p>
         <p className="text-aldea-dim text-[12px]">Camino: {char?.path}</p>
       </motion.div>

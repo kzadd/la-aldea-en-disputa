@@ -70,7 +70,7 @@ export default function Results({ gameId, userId, characters, onHome }) {
   if (data.game.status === 'cancelled') {
     return (
       <div className="flex flex-col gap-4">
-        <h1 className="font-title text-aldea-accent flex items-center justify-center gap-2 py-2 text-[14px]">
+        <h1 className="font-title text-aldea-accent flex items-center justify-center gap-2 py-2 text-[14px] font-extrabold">
           <PixelIcon name="bloqueo" size={15} />
           PARTIDA CANCELADA
         </h1>
@@ -91,7 +91,7 @@ export default function Results({ gameId, userId, characters, onHome }) {
 
   return (
     <div className="flex flex-col gap-3.5">
-      <h1 className="font-title text-aldea-accent flex items-center justify-center gap-2.5 py-2 text-[16px]">
+      <h1 className="font-title text-aldea-accent flex items-center justify-center gap-2.5 py-2 text-[16px] font-extrabold">
         <PixelIcon name="trofeo" size={20} />
         {/* Al que pierde también hay que decirle quién ganó, no solo "fin" */}
         {data.game.winner_id === userId

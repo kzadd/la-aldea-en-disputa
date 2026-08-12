@@ -54,7 +54,7 @@ export default function Lobby({ roomId, userId, onGame, onLeave }) {
           CÓDIGO DE SALA
         </span>
         <span
-          className="font-title text-aldea-accent text-[28px] leading-none tracking-[6px]"
+          className="font-title text-aldea-accent text-[28px] leading-none font-extrabold tracking-[6px]"
           style={{ textShadow: '0 3px 0 #3d2c1d' }}
         >
           {room.code}

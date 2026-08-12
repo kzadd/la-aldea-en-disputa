@@ -14,7 +14,7 @@ export function SpyReport({ report, name, buildings, onClose }) {
       animate={{ opacity: 1 }}
       className="bg-aldea-card absolute inset-0 z-20 flex flex-col gap-3 overflow-y-auto p-4"
     >
-      <h2 className="font-title text-aldea-accent flex items-center justify-center gap-2 py-2 text-[13px]">
+      <h2 className="font-title text-aldea-accent flex items-center justify-center gap-2 py-2 text-[13px] font-extrabold">
         <PixelIcon name="espionaje" size={16} />
         Informe sobre {name}
       </h2>

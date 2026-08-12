@@ -175,7 +175,7 @@ export default function Auth({ onSession }) {
           </p>
         )}
 
-        <Button full disabled={busy || !completo} onClick={enviar} className="font-bold">
+        <Button full disabled={busy || !completo} onClick={enviar}>
           {busy ? '…' : registro ? 'CREAR CUENTA' : 'ENTRAR'}
         </Button>
       </div>

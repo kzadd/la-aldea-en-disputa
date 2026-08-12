@@ -30,8 +30,8 @@ export function MyBuildings({ mias, catalogo, round }) {
         style={{ background: '#241a13' }}
       >
         <PixelIcon name="casa" size={15} />
-        {/* "TUS CONSTRUCCIONES" partía en dos renglones a 390px: Silkscreen es
-            ancha y el resumen de producción ya ocupa la mitad de la fila. */}
+        {/* "TUS CONSTRUCCIONES" partía en dos renglones a 390px: el resumen de
+            producción ya ocupa la mitad de la fila. */}
         <span className="font-title text-aldea-ink flex-1 truncate text-[12px]">
           CONSTRUCCIONES · {mias.length}
         </span>

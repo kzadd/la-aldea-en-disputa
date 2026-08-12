@@ -61,7 +61,7 @@ export function RevealOverlay({ events, players, buildings, round, userId, deadl
       className="bg-aldea-card absolute inset-0 z-10 flex flex-col gap-3 overflow-y-auto p-4"
     >
       <h2 className="flex items-center justify-center gap-2.5 py-2 text-center">
-        <span className="font-title text-aldea-accent text-[13px]">
+        <span className="font-title text-aldea-accent text-[13px] font-extrabold">
           Revelación · ronda {round}
         </span>
         {left !== null && (
@@ -90,8 +90,8 @@ export function RevealOverlay({ events, players, buildings, round, userId, deadl
             style={{ background: '#241a13' }}
           >
             <PixelIcon name={l.icon} size={15} className="mt-[2px]" />
-            {/* Nombre en Silkscreen y el relato en la tipografía del cuerpo:
-                el ojo salta de nombre en nombre y después lee qué pasó. */}
+            {/* Nombre en negrita y el relato en el peso del cuerpo: el ojo
+                salta de nombre en nombre y después lee qué pasó. */}
             <span className="flex flex-1 flex-wrap items-baseline gap-1.5">
               <span
                 className={`font-title text-[12px] leading-[1.4] ${

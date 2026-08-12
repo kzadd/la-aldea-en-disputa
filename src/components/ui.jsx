@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { PixelIcon } from './PixelIcon.jsx'
 
-// Panel: caja de contenido. El título va en Silkscreen, chico y espaciado.
+// Panel: caja de contenido. El título va chico, en negrita y espaciado.
 export function Panel({ title, icon, children, className = '', accent }) {
   return (
     <section
@@ -68,8 +68,8 @@ const TONOS = {
   quiet:
     'border border-aldea-line text-aldea-muted text-[12px] hover:border-aldea-accent hover:text-aldea-accent',
   danger: 'border border-aldea-danger text-aldea-warm text-[12px]',
-  // Como el principal pero sin relieve ni Silkscreen: para acciones dentro de un
-  // panel, donde el botón grande de la pantalla ya se lleva el protagonismo.
+  // Como el principal pero sin relieve: para acciones dentro de un panel, donde
+  // el botón grande de la pantalla ya se lleva el protagonismo.
   plano: 'bg-aldea-accent text-aldea-card text-[13px]',
   // Descartar algo: neutro en reposo, rojo recién al apuntarlo.
   cancelar:
@@ -137,7 +137,7 @@ export function Modal({ title, icon, onClose, children, extra }) {
       >
         <div className="flex items-center gap-2">
           {icon && <PixelIcon name={icon} size={14} />}
-          <h2 className="font-title text-aldea-accent flex-1 text-[13px]">{title}</h2>
+          <h2 className="font-title text-aldea-accent flex-1 text-[13px] font-extrabold">{title}</h2>
           {extra}
         </div>
         {children}

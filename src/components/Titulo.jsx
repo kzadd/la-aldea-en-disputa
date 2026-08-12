@@ -3,7 +3,7 @@
 export function Titulo({ size = 17 }) {
   return (
     <h1
-      className="font-title text-aldea-accent py-1 text-center leading-[1.6] tracking-wide"
+      className="font-title text-aldea-accent py-1 text-center leading-[1.6] font-extrabold tracking-wide"
       style={{ fontSize: size, textShadow: '0 2px 0 #3d2c1d', fontWeight: 600 }}
     >
       LA ALDEA

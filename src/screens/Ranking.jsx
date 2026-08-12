@@ -18,7 +18,7 @@ export default function Ranking({ userId, characters, onBack }) {
     <div className="flex flex-col gap-4">
       <Cabecera onBack={onBack}>
         <PixelIcon name="trofeo" size={15} />
-        <span className="font-title text-aldea-accent text-[13px]">RANKING GLOBAL</span>
+        <span className="font-title text-aldea-accent text-[13px] font-extrabold">RANKING GLOBAL</span>
       </Cabecera>
 
       {!rows ? (

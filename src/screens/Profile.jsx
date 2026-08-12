@@ -114,8 +114,8 @@ function Line({ label, value }) {
   )
 }
 
-// `unit` va aparte y en la tipografía del cuerpo: el símbolo de porcentaje de
-// Silkscreen es un borrón a este tamaño. Alineado por la línea base para que no
+// `unit` va aparte y un paso por debajo de la cifra: el número es el dato y el
+// símbolo no tiene que competir con él. Alineado por la línea base para que no
 // quede flotando respecto del número.
 function Stat({ label, value, unit, destacado }) {
   return (
@@ -126,13 +126,13 @@ function Stat({ label, value, unit, destacado }) {
     >
       <span className="flex items-baseline justify-center gap-[2px]">
         <span
-          className={`font-title text-[24px] leading-none ${destacado ? 'text-aldea-accent' : 'text-aldea-ink'}`}
+          className={`font-title text-[24px] leading-none font-extrabold ${destacado ? 'text-aldea-accent' : 'text-aldea-ink'}`}
         >
           {value}
         </span>
         {unit && (
           <span
-            className={`text-[15px] leading-none font-semibold ${destacado ? 'text-aldea-accent' : 'text-aldea-ink'}`}
+            className={`text-[15px] leading-none font-bold ${destacado ? 'text-aldea-accent' : 'text-aldea-ink'}`}
           >
             {unit}
           </span>
