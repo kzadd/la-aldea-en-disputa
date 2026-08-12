@@ -26,6 +26,7 @@ Proyecto Supabase nuevo e independiente de VETA / La Torre del Dragón (ARCHITEC
 | `migrations/20260807121700_tick_2s.sql` | `tick_games()` cada 2 s: el reveal se cierra a tiempo |
 | `migrations/20260807121800_cancelar_partida.sql` | Estado `cancelled`: el host corta sin puntuar |
 | `migrations/20260807121900_avatares_nuevos.sql` | Seis avatares más (búho, gato, jabalí, bruja, esqueleto, fantasma) |
+| `migrations/20260812120000_reset_datos.sql` | Borra historial de partidas y pone `user_stats` en 0. No toca cuentas ni catálogos |
 
 ## Cuentas y código de invitación
 
