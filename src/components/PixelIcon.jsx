@@ -20,7 +20,8 @@ export function PixelIcon({ name, size = 12, tint, className = '', title }) {
       let run = 1
       while (x + run < row.length && row[x + run] === ch) run++
       const fill = palette[ch]
-      if (fill) rects.push(<rect key={`${x},${y}`} x={x} y={y} width={run} height={1} fill={fill} />)
+      if (fill)
+        rects.push(<rect key={`${x},${y}`} x={x} y={y} width={run} height={1} fill={fill} />)
       x += run
     }
   })

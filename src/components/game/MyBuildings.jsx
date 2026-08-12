@@ -32,7 +32,7 @@ export function MyBuildings({ mias, catalogo, round }) {
         <PixelIcon name="casa" size={15} />
         {/* "TUS CONSTRUCCIONES" partía en dos renglones a 390px: Silkscreen es
             ancha y el resumen de producción ya ocupa la mitad de la fila. */}
-        <span className="font-title text-aldea-ink flex-1 truncate text-[12px] font-bold">
+        <span className="font-title text-aldea-ink flex-1 truncate text-[12px]">
           CONSTRUCCIONES · {mias.length}
         </span>
         {/* El resumen de producción se ve sin abrir: es el dato que se mira
@@ -72,14 +72,14 @@ export function MyBuildings({ mias, catalogo, round }) {
                   style={{
                     background: '#17110d',
                     borderColor: rota ? '#c0492e' : '#3d2c1d',
-                    opacity: rota ? 0.75 : 1,
+                    opacity: rota ? 0.75 : 1
                   }}
                 >
                   <PixelIcon name={rota ? 'danio' : 'casa'} size={15} className="mt-[2px]" />
                   <div className="flex min-w-0 flex-1 flex-col gap-1">
                     <span className="flex items-center gap-2">
                       <span
-                        className={`font-title text-[12px] font-bold ${
+                        className={`font-title text-[12px] ${
                           rota ? 'text-aldea-warm' : 'text-aldea-accent'
                         }`}
                       >

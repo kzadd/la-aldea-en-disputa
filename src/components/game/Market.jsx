@@ -37,18 +37,18 @@ export function Market({ market, buildings, me, selected, onSelect, disabled }) 
             style={{
               background: on ? 'rgba(110,168,216,.1)' : puede ? '#17110d' : '#140f0b',
               borderColor: on ? '#6ea8d8' : puede ? '#8a6224' : '#3d2c1d',
-              opacity: puede || on ? 1 : 0.72,
+              opacity: puede || on ? 1 : 0.72
             }}
           >
             <span className="flex items-center gap-[7px]">
               <span
-                className={`font-title min-w-0 flex-1 text-[13px] leading-tight font-bold ${
+                className={`font-title min-w-0 flex-1 text-[13px] leading-tight ${
                   on ? 'text-[#8fc0e8]' : 'text-aldea-accent'
                 }`}
               >
                 {b.name}
               </span>
-              <span className="font-title text-aldea-ink text-[14px] font-bold">{b.points}</span>
+              <span className="font-title text-aldea-ink text-[14px]">{b.points}</span>
               <PixelIcon name="trofeo" size={15} title="puntos" />
             </span>
 
@@ -56,7 +56,7 @@ export function Market({ market, buildings, me, selected, onSelect, disabled }) 
               {RESOURCES.filter(r => cost[r.key] > 0).map(r => (
                 <span key={r.key} className="flex items-center gap-[5px]">
                   <span
-                    className={`font-title text-[12px] font-bold ${
+                    className={`font-title text-[12px] ${
                       me[r.key] < cost[r.key] ? 'text-aldea-warm' : 'text-aldea-accent'
                     }`}
                   >
@@ -72,9 +72,7 @@ export function Market({ market, buildings, me, selected, onSelect, disabled }) 
             {falta.length > 0 && (
               <span className="text-aldea-warm text-[11px] leading-[1.3]">
                 te faltan{' '}
-                {falta
-                  .map(r => `${cost[r.key] - me[r.key]} ${r.label.toLowerCase()}`)
-                  .join(' y ')}
+                {falta.map(r => `${cost[r.key] - me[r.key]} ${r.label.toLowerCase()}`).join(' y ')}
               </span>
             )}
           </button>

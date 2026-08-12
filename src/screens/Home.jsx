@@ -260,7 +260,7 @@ function Bienvenida({ profile, onProfile }) {
             BIENVENIDO
           </span>
           <span
-            className="font-title text-aldea-ink truncate leading-none font-bold"
+            className="font-title text-aldea-ink truncate leading-none"
             style={{ fontSize: profile.nickname.length > 10 ? 14 : 16 }}
           >
             {profile.nickname}

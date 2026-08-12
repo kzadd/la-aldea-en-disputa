@@ -23,7 +23,7 @@ export default function CharacterModal({ character, jugador, extra, onClose }) {
           <PixelIcon name={CHARACTER_SPRITE[character.key] ?? 'interrogante'} size={34} />
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <span className="font-title text-aldea-accent text-[13px] font-bold">{character.name}</span>
+          <span className="font-title text-aldea-accent text-[13px]">{character.name}</span>
           {jugador && (
             <span className="text-aldea-dim flex items-center gap-1.5 text-[11px]">
               <PixelIcon name={jugador.avatar || 'aldeano'} size={12} />

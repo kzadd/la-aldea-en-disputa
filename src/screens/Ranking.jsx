@@ -18,7 +18,7 @@ export default function Ranking({ userId, characters, onBack }) {
     <div className="flex flex-col gap-4">
       <Cabecera onBack={onBack}>
         <PixelIcon name="trofeo" size={15} />
-        <span className="font-title text-aldea-accent text-[13px] font-bold">RANKING GLOBAL</span>
+        <span className="font-title text-aldea-accent text-[13px]">RANKING GLOBAL</span>
       </Cabecera>
 
       {!rows ? (
@@ -39,7 +39,7 @@ export default function Ranking({ userId, characters, onBack }) {
               }`}
             >
               <span
-                className={`font-title w-[15px] shrink-0 text-center text-[16px] font-bold ${
+                className={`font-title w-[15px] shrink-0 text-center text-[16px] ${
                   r.user_id === userId ? 'text-aldea-accent' : 'text-aldea-dim'
                 }`}
               >
@@ -49,7 +49,7 @@ export default function Ranking({ userId, characters, onBack }) {
                 <PixelIcon name={r.avatar || 'aldeano'} size={24} />
               </span>
               <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <span className="font-title text-aldea-ink truncate text-[14px] font-bold">{r.nickname}</span>
+                <span className="font-title text-aldea-ink truncate text-[14px]">{r.nickname}</span>
                 {/* El personaje más usado va como texto: a 16px el sprite pedía
                     descifrarlo y no decía de quién era. */}
                 <span className="text-aldea-dim truncate text-[11px] leading-none">
@@ -62,7 +62,7 @@ export default function Ranking({ userId, characters, onBack }) {
               <div className="text-right">
                 {/* El amarillo señala tu fila, no el podio: sirve para encontrarte */}
                 <div
-                  className={`font-title text-[16px] font-bold ${
+                  className={`font-title text-[16px] ${
                     r.user_id === userId ? 'text-aldea-accent' : 'text-aldea-ink'
                   }`}
                 >

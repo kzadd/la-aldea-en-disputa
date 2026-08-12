@@ -3,7 +3,15 @@ import { PixelIcon } from './PixelIcon.jsx'
 
 // `nickname` ya no hace falta para pintar (cada avatar trae su paleta), pero
 // las pantallas lo siguen pasando: se ignora sin romper nada.
-export function Avatar({ avatar = 'aldeano', size = 26, box = 44, frame = true, ring, onClick, title }) {
+export function Avatar({
+  avatar = 'aldeano',
+  size = 26,
+  box = 44,
+  frame = true,
+  ring,
+  onClick,
+  title
+}) {
   // Puede llegar null desde una consulta con join, no solo undefined
   const sprite = <PixelIcon name={AVATAR_SPRITE(avatar || 'aldeano')} size={size} />
   if (!frame) return sprite

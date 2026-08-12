@@ -61,12 +61,12 @@ export function RevealOverlay({ events, players, buildings, round, userId, deadl
       className="bg-aldea-card absolute inset-0 z-10 flex flex-col gap-3 overflow-y-auto p-4"
     >
       <h2 className="flex items-center justify-center gap-2.5 py-2 text-center">
-        <span className="font-title text-aldea-accent text-[13px] font-bold">
+        <span className="font-title text-aldea-accent text-[13px]">
           Revelación · ronda {round}
         </span>
         {left !== null && (
           <span
-            className="font-title rounded-[5px] border px-2.5 py-1.5 text-[12px] leading-none font-bold"
+            className="font-title rounded-[5px] border px-2.5 py-1.5 text-[12px] leading-none"
             style={{ background: '#241a13', borderColor: '#3d2c1d', color: '#f2e7d5' }}
           >
             {left}s
@@ -94,7 +94,7 @@ export function RevealOverlay({ events, players, buildings, round, userId, deadl
                 el ojo salta de nombre en nombre y después lee qué pasó. */}
             <span className="flex flex-1 flex-wrap items-baseline gap-1.5">
               <span
-                className={`font-title text-[12px] leading-[1.4] font-bold ${
+                className={`font-title text-[12px] leading-[1.4] ${
                   l.mio ? 'text-aldea-ink' : 'text-aldea-accent'
                 }`}
               >

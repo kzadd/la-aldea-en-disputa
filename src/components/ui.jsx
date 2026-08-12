@@ -137,7 +137,7 @@ export function Modal({ title, icon, onClose, children, extra }) {
       >
         <div className="flex items-center gap-2">
           {icon && <PixelIcon name={icon} size={14} />}
-          <h2 className="font-title text-aldea-accent flex-1 text-[13px] font-bold">{title}</h2>
+          <h2 className="font-title text-aldea-accent flex-1 text-[13px]">{title}</h2>
           {extra}
         </div>
         {children}

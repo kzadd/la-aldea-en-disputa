@@ -22,7 +22,7 @@ export default function Profile({ userId, profile, characters, onBack }) {
     <div className="flex flex-col gap-4">
       <Cabecera onBack={onBack}>
         <Avatar avatar={profile.avatar} size={18} frame={false} />
-        <span className="font-title text-aldea-ink text-[14px] font-bold">{profile.nickname}</span>
+        <span className="font-title text-aldea-ink text-[14px]">{profile.nickname}</span>
       </Cabecera>
 
       {!s ? (

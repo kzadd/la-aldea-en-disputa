@@ -323,7 +323,7 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
             style={{ background: "#241a13" }}
           >
             <PixelIcon name="bloqueo" size={15} />
-            <span className="font-title text-aldea-ink flex-1 text-[12px] font-bold">
+            <span className="font-title text-aldea-ink flex-1 text-[12px]">
               TU MISIÓN SECRETA
             </span>
             <PixelIcon
@@ -337,7 +337,7 @@ export default function Game({ gameId, userId, catalogs, onFinished }) {
               className="flex flex-col gap-[7px] rounded-md border p-[13px]"
               style={{ background: "#1d150f", borderColor: "#8a6224" }}
             >
-              <p className="font-title text-aldea-accent-soft text-[13px] font-bold">
+              <p className="font-title text-aldea-accent-soft text-[13px]">
                 {mission.name}
               </p>
               <p className="text-[12px] leading-[1.6]">{mission.description}</p>

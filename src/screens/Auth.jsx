@@ -90,7 +90,7 @@ export default function Auth({ onSession }) {
             aria-checked={modo === k}
             onClick={() => cambiarModo(k)}
             className={`font-title flex-1 rounded-lg px-2 py-3 text-[11px] leading-none ${
-              modo === k ? 'bg-aldea-accent text-aldea-card font-bold' : 'text-aldea-muted'
+              modo === k ? 'bg-aldea-accent text-aldea-card' : 'text-aldea-muted'
             }`}
           >
             {label}

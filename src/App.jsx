@@ -2,13 +2,13 @@ import { useCallback, useEffect, useState } from 'react'
 import { currentSession, getProfile, loadCatalogs, recoverPlace, signOut } from './lib/api.js'
 import { supabase } from './lib/supabase.js'
 import Auth from './screens/Auth.jsx'
-import Home from './screens/Home.jsx'
-import Lobby from './screens/Lobby.jsx'
 import CharacterDraw from './screens/CharacterDraw.jsx'
 import Game from './screens/Game.jsx'
-import Results from './screens/Results.jsx'
+import Home from './screens/Home.jsx'
+import Lobby from './screens/Lobby.jsx'
 import Profile from './screens/Profile.jsx'
 import Ranking from './screens/Ranking.jsx'
+import Results from './screens/Results.jsx'
 
 // Router por estado (ARCHITECTURE §6). El "dónde estoy" se recupera de Supabase,
 // no de localStorage: el estado de juego vive en el servidor (§9).
@@ -21,12 +21,12 @@ export default function App() {
   const [overlay, setOverlay] = useState(null) // 'profile' | 'ranking' | null
   const [players, setPlayers] = useState([])
 
-  const arrancar = useCallback(async (session) => {
+  const arrancar = useCallback(async session => {
     try {
       const [profile, catalogs, place] = await Promise.all([
         getProfile(session.user.id),
         loadCatalogs(),
-        recoverPlace(session.user.id),
+        recoverPlace(session.user.id)
       ])
 
       // Sesión huérfana: el usuario ya no existe. Se cierra y se vuelve al login.
@@ -81,14 +81,19 @@ export default function App() {
     setOverlay(null)
   }, [])
 
-  const handleGame = useCallback((id) => setGameId(id), [])
+  const handleGame = useCallback(id => setGameId(id), [])
 
   if (boot.status === 'loading') return <Shell>Entrando a la aldea…</Shell>
   if (boot.status === 'error') return <Shell>Error: {boot.message}</Shell>
   if (boot.status === 'anon')
     return (
       <Shell>
-        <Auth onSession={(s) => { setBoot({ status: 'loading' }); arrancar(s) }} />
+        <Auth
+          onSession={s => {
+            setBoot({ status: 'loading' })
+            arrancar(s)
+          }}
+        />
       </Shell>
     )
 
@@ -106,20 +111,11 @@ export default function App() {
     )
   } else if (overlay === 'ranking') {
     screen = (
-      <Ranking
-        userId={userId}
-        characters={catalogs.characters}
-        onBack={() => setOverlay(null)}
-      />
+      <Ranking userId={userId} characters={catalogs.characters} onBack={() => setOverlay(null)} />
     )
   } else if (finished && gameId) {
     screen = (
-      <Results
-        gameId={gameId}
-        userId={userId}
-        characters={catalogs.characters}
-        onHome={goHome}
-      />
+      <Results gameId={gameId} userId={userId} characters={catalogs.characters} onHome={goHome} />
     )
   } else if (gameId && drawnFor !== gameId) {
     screen = (
@@ -141,14 +137,12 @@ export default function App() {
       />
     )
   } else if (roomId) {
-    screen = (
-      <Lobby roomId={roomId} userId={userId} onGame={handleGame} onLeave={goHome} />
-    )
+    screen = <Lobby roomId={roomId} userId={userId} onGame={handleGame} onLeave={goHome} />
   } else {
     screen = (
       <Home
         profile={profile}
-        onProfile={(p) => setBoot({ ...boot, profile: p })}
+        onProfile={p => setBoot({ ...boot, profile: p })}
         onRoom={setRoomId}
         onOpenProfile={() => setOverlay('profile')}
         onOpenRanking={() => setOverlay('ranking')}

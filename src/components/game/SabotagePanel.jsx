@@ -124,7 +124,7 @@ export function SabotagePanel({
                       >
                         <PixelIcon name={p.profiles?.avatar || 'aldeano'} size={24} />
                       </span>
-                      <span className="font-title text-aldea-ink min-w-0 flex-1 truncate text-left text-[12px] font-bold">
+                      <span className="font-title text-aldea-ink min-w-0 flex-1 truncate text-left text-[12px]">
                         {p.profiles?.nickname}
                       </span>
                       {/* Personaje y puntos juntos: es lo que se mira para
@@ -198,7 +198,7 @@ export function SabotagePanel({
                           {Object.entries(s.cost).map(([k, v]) => (
                             <span key={k} className="flex items-center gap-[3px]">
                               <span
-                                className="font-title text-[11px] font-bold"
+                                className="font-title text-[11px]"
                                 style={{ color: on ? '#17110d' : '#e8a33d' }}
                               >
                                 {v}

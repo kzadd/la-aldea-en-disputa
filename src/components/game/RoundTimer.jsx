@@ -17,7 +17,7 @@ export function RoundTimer({ deadline }) {
   const urgente = left <= 10
   return (
     <span
-      className="font-title rounded-[5px] border px-2.5 py-1.5 text-[12px] leading-none font-bold"
+      className="font-title rounded-[5px] border px-2.5 py-1.5 text-[12px] leading-none"
       style={{
         background: '#241a13',
         borderColor: urgente ? '#c0492e' : '#3d2c1d',

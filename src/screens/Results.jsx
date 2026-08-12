@@ -91,7 +91,7 @@ export default function Results({ gameId, userId, characters, onHome }) {
 
   return (
     <div className="flex flex-col gap-3.5">
-      <h1 className="font-title text-aldea-accent flex items-center justify-center gap-2.5 py-2 text-[16px] font-bold">
+      <h1 className="font-title text-aldea-accent flex items-center justify-center gap-2.5 py-2 text-[16px]">
         <PixelIcon name="trofeo" size={20} />
         {/* Al que pierde también hay que decirle quién ganó, no solo "fin" */}
         {data.game.winner_id === userId
@@ -117,7 +117,7 @@ export default function Results({ gameId, userId, characters, onHome }) {
                 <PixelIcon name={p.profiles?.avatar || 'aldeano'} size={21} />
               </span>
               <PixelIcon name={CHARACTER_SPRITE[p.character_key]} size={21} />
-              <span className="font-title text-aldea-ink min-w-0 flex-1 truncate text-[14px] font-bold">
+              <span className="font-title text-aldea-ink min-w-0 flex-1 truncate text-[14px]">
                 {p.user_id === userId ? 'Tú' : p.profiles?.nickname}
               </span>
               {/* Trofeo del metal que le tocó: el podio se lee de un vistazo */}
@@ -125,7 +125,7 @@ export default function Results({ gameId, userId, characters, onHome }) {
                 <PixelIcon name="trofeo" size={20} tint={MEDAL_TINT[i]} title={`Puesto ${i + 1}`} />
               )}
               <span
-                className={`font-title text-[14px] font-bold ${
+                className={`font-title text-[14px] ${
                   i === 0 ? 'text-aldea-accent' : 'text-aldea-ink'
                 }`}
               >
@@ -147,7 +147,7 @@ export default function Results({ gameId, userId, characters, onHome }) {
                 />
                 <div className="flex min-w-0 flex-1 flex-col gap-[5px]">
                   <p
-                    className="font-title text-[13px] leading-[1.4] font-bold"
+                    className="font-title text-[13px] leading-[1.4]"
                     style={{ color: m.completed ? '#f2bd63' : '#9d8b74' }}
                   >
                     {m.missions_catalog?.name}
@@ -215,7 +215,7 @@ function Caminos({ jugador }) {
             boxShadow: '0 8px 20px rgba(0,0,0,.55)',
           }}
         >
-          <p className="font-title text-aldea-accent text-[11px] font-bold">
+          <p className="font-title text-aldea-accent text-[11px]">
             {c.label} · {valor} {valor === 1 ? 'punto' : 'puntos'}
           </p>
           <p className="text-[12px] leading-snug">{c.texto}</p>

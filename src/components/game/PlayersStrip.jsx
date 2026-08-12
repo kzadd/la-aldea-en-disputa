@@ -47,7 +47,7 @@ export function PlayersStrip({
                 <PixelIcon name="check" size={9} title="Ya decidió" />
               )}
             </span>
-            <span className="font-title text-aldea-ink max-w-full truncate text-[12px] font-bold">
+            <span className="font-title text-aldea-ink max-w-full truncate text-[12px]">
               {mine ? 'Tú' : p.profiles?.nickname}
             </span>
             <span className="text-aldea-accent text-[12px] leading-none">{p.points} pts</span>
@@ -93,7 +93,7 @@ export function PlayersStrip({
               >
                 <PixelIcon name={CHARACTER_SPRITE[p.character_key] ?? 'interrogante'} size={28} />
                 <div className="flex flex-1 flex-col gap-1.5">
-                  <p className="font-title text-aldea-accent text-[12px] font-bold">{suyo.name}</p>
+                  <p className="font-title text-aldea-accent text-[12px]">{suyo.name}</p>
                   <p className="text-[12px] leading-[1.55]">{suyo.passive_text}</p>
                   <p className="text-aldea-dim text-[11px]">Camino: {suyo.path}</p>
                 </div>

@@ -52,7 +52,7 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="font-title text-aldea-accent py-1 text-center text-[13px] font-bold">
+      <h1 className="font-title text-aldea-accent py-1 text-center text-[13px]">
         TU PERSONAJE
       </h1>
 
@@ -65,7 +65,7 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
         {/* La habilidad y el camino se ven también mientras gira: el sorteo
             enseña los ocho personajes de paso, no solo sus caras. */}
         <PixelIcon name={CHARACTER_SPRITE[shown] ?? 'interrogante'} size={70} />
-        <p className="font-title text-aldea-accent text-[15px] font-bold">{char?.name}</p>
+        <p className="font-title text-aldea-accent text-[15px]">{char?.name}</p>
         <p className="text-[13px] leading-[1.7]">{char?.passive_text}</p>
         <p className="text-aldea-dim text-[12px]">Camino: {char?.path}</p>
       </motion.div>
@@ -75,13 +75,13 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
       ) : (
         <>
           <div className="bg-aldea-panel border-aldea-line flex flex-col gap-1.5 rounded-lg border p-4">
-            <h2 className="font-title text-aldea-accent flex items-center gap-2 text-[12px] font-bold">
+            <h2 className="font-title text-aldea-accent flex items-center gap-2 text-[12px]">
               <PixelIcon name="bloqueo" size={15} />
               TU MISIÓN SECRETA
             </h2>
             {mission ? (
               <>
-                <p className="font-title text-aldea-accent-soft text-[15px] font-bold">
+                <p className="font-title text-aldea-accent-soft text-[15px]">
                   {mission.name}
                 </p>
                 <p className="text-[13px] leading-relaxed">{mission.description}</p>
@@ -122,7 +122,7 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
                         <PixelIcon name={p.profiles?.avatar || 'aldeano'} size={24} />
                       </span>
                       <span
-                        className={`font-title min-w-0 flex-1 truncate text-left text-[12px] font-bold ${
+                        className={`font-title min-w-0 flex-1 truncate text-left text-[12px] ${
                           soyYo ? 'text-aldea-ink' : 'text-aldea-muted'
                         }`}
                       >
@@ -155,7 +155,7 @@ export default function CharacterDraw({ gameId, userId, players, characters, onD
                           size={28}
                         />
                         <div className="flex flex-1 flex-col gap-1.5 text-left">
-                          <p className="font-title text-aldea-accent text-[12px] font-bold">
+                          <p className="font-title text-aldea-accent text-[12px]">
                             {suyo?.name}
                           </p>
                           <p className="text-[12px] leading-relaxed">{suyo?.passive_text}</p>

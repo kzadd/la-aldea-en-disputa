@@ -14,7 +14,7 @@ export function ResourceBar({ me, limit, timer, round, maxRounds }) {
         <span className="text-aldea-ink/80 flex-1 text-[13px]">
           Ronda {round}/{maxRounds}
         </span>
-        <span className="font-title text-aldea-accent text-[12px] font-bold">{me.points} pts</span>
+        <span className="font-title text-aldea-accent text-[12px]">{me.points} pts</span>
         {timer}
       </div>
 
@@ -36,7 +36,7 @@ export function ResourceBar({ me, limit, timer, round, maxRounds }) {
               <PixelIcon name={r.icon} size={20} />
               <span className="flex items-baseline">
                 <span
-                  className={`font-title text-[13px] font-bold ${
+                  className={`font-title text-[13px] ${
                     lleno ? 'text-aldea-accent' : 'text-aldea-ink'
                   }`}
                 >
@@ -64,7 +64,7 @@ export function ResourceBar({ me, limit, timer, round, maxRounds }) {
                         : { left: '50%', transform: 'translateX(-50%)' }),
                   }}
                 >
-                  <p className="font-title text-aldea-accent text-[11px] font-bold">{r.label}</p>
+                  <p className="font-title text-aldea-accent text-[11px]">{r.label}</p>
                   <p className="text-[12px] leading-snug">
                     {v} de {limit} · tope por recurso
                   </p>

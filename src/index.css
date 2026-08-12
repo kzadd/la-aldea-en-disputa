@@ -1,37 +1,20 @@
 @import 'tailwindcss';
 
-/* Tipografías autoalojadas (SIL OFL 1.1): la PWA tiene que funcionar sin red.
-   Silkscreen para títulos y etiquetas, Pixelify Sans para el texto corrido —
-   Silkscreen es demasiado dura para leer párrafos. */
+/* Tipografía autoalojada (SIL OFL 1.1): la PWA tiene que funcionar sin red.
+   Antes eran Silkscreen + Pixelify Sans: a los tamaños que usa el juego (11-13px
+   en la mayoría de etiquetas) el trazo de un píxel se rompía y el texto no se
+   leía. Nunito es variable (400-800), de x-height alta y legible a esos tamaños;
+   el aire retro lo sostienen los bordes duros, los iconos pixelados y las
+   animaciones a pasos, no la letra. */
 @font-face {
-  font-family: 'Silkscreen';
+  font-family: 'Nunito';
   font-style: normal;
-  font-weight: 400;
+  font-weight: 400 800;
   font-display: swap;
-  src: url('./assets/silkscreen-400.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
-    U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Silkscreen';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('./assets/silkscreen-700.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
-    U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Pixelify Sans';
-  font-style: normal;
-  font-weight: 400 700;
-  font-display: swap;
-  src: url('./assets/pixelify-sans-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
-    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
-    U+FEFF, U+FFFD;
+  src: url('./assets/nunito-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @theme {
@@ -52,8 +35,8 @@
   --color-aldea-warm: #e07a5f;
   --color-aldea-green: #7fb069;
 
-  --font-title: 'Silkscreen', ui-monospace, monospace;
-  --font-body: 'Pixelify Sans', ui-monospace, monospace;
+  --font-title: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Nunito', ui-sans-serif, system-ui, sans-serif;
 }
 
 html,
@@ -67,26 +50,29 @@ body {
   background: var(--color-aldea-void);
   color: var(--color-aldea-ink);
   font-family: var(--font-body);
-  /* Pixelify Sans en 400 deja el trazo de un píxel: a 12px, que es el tamaño
-     de casi todo el texto del juego, las letras se rompen. 500 es el peso que
-     usa el prototipo y el que hace legible el cuerpo sin engordarlo. */
+  /* Nunito es algo ligera sobre fondo oscuro: 500 le devuelve el cuerpo que el
+     texto claro sobre oscuro se come. */
   font-weight: 500;
-  line-height: 1.55;
-  /* Las tipografías de píxel no tienen cursiva ni negrita reales en todos los
-     pesos; el navegador las inventaba inclinando y engrosando el bitmap. */
-  font-synthesis: none;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
   /* Juego, no documento: nada de seleccionar texto sin querer al tocar */
   user-select: none;
   -webkit-user-select: none;
 }
 
-input,
-textarea,
-button {
-  /* Los controles no heredan la tipografía del body por defecto */
-  font-family: var(--font-body);
-  font-weight: 500;
+/* Los controles no heredan la tipografía del body por defecto. En @layer base
+   por el mismo motivo que `.font-title`: sin capa, este `font-weight` le gana a
+   cualquier clase y dejaba todos los botones en 500, incluido el `font-bold` de
+   <Button> y el `font-title` de sus tonos. */
+@layer base {
+  input,
+  textarea,
+  button {
+    font-family: var(--font-body);
+    font-weight: 500;
+  }
 }
 
 input,
@@ -103,9 +89,20 @@ img {
   image-rendering: pixelated;
 }
 
-/* Títulos y etiquetas cortas en Silkscreen */
-.font-title {
-  font-family: var(--font-title);
+/* Escala de pesos, ahora que la letra es una sola y la jerarquía la lleva el
+   peso y no la familia. Tres pasos, ni uno más:
+     500  cuerpo y texto secundario (body)
+     700  `font-title` (etiquetas, nombres, cifras) y `font-bold` en el cuerpo
+     800  `font-extrabold`: títulos de pantalla y cifras protagonistas
+   Va en @layer components a propósito: sin la capa, esta regla gana siempre y
+   deja muerto cualquier `font-bold`/`font-extrabold` puesto en el elemento.
+   Dentro de la capa, las utilidades de Tailwind pueden pisarla. */
+@layer components {
+  .font-title {
+    font-family: var(--font-title);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
 }
 
 /* Botón principal: relieve duro de 3px que se hunde al pulsarlo. Es la
